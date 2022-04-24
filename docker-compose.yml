@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  db:
+    image: postgres:11
+    network_mode: "host"
+    security_opt:
+      - seccomp:unconfined
+    env_file:
+      - '.env.dev'
