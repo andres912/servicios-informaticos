@@ -32,7 +32,7 @@ def create_incident():
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["DELETE"])
 # @user_required([EDIT_DISTRIBUTOR])
-def create_incident():
+def delete_incident():
     """
     DELETE endpoint to delete a given Incident.
     """
