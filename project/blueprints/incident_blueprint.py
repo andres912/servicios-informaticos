@@ -8,6 +8,7 @@ incident_blueprint = Blueprint("incidents_blueprint", __name__)
 incident_schema = IncidentSchema()
 incidents_schema = IncidentSchema(many=True)
 
+
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
 def get_incidents():
@@ -16,6 +17,7 @@ def get_incidents():
     """
     incidents = IncidentController.load_all()
     return jsonify(incidents_schema.dump(incidents))
+
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["POST"])
 # @user_required([EDIT_DISTRIBUTOR])
@@ -26,3 +28,12 @@ def create_incident():
     new_incident = incident_schema.load(request.json)
     IncidentController.save(new_incident)
     return incident_schema.dump(new_incident)
+
+
+@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["DELETE"])
+# @user_required([EDIT_DISTRIBUTOR])
+def create_incident():
+    """
+    DELETE endpoint to delete a given Incident.
+    """
+    return "Method not implemented", 200
