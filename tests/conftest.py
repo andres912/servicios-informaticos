@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture(scope="function")
 def test_client():
-    flask_app = create_app("../instance/flask_test.cfg")
+    flask_app = create_app("flask_test.cfg")
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
             yield testing_client  # this is where the testing happens!

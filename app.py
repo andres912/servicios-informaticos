@@ -1,6 +1,6 @@
 from project import create_app
 from flask import app
 
-app = create_app("../instance/flask.cfg")
+app = create_app("flask.cfg")
 if __name__ == "__main__":
     app.run()
