@@ -13,11 +13,19 @@
 - Crear una base de datos en PostgreSQL (los datos tienen que ser de acuerdo a lo que figura en .env.dev)
 - (Librería no relacionada a Python): libpq-dev (sudo apt-get install libpq-dev) -> necesaria para instalar psycopg2
    
+### Preparación (ubuntu):
+```sh
+sudo apt install libpq-dev
+python3 -m venv venv
+```
+
 ### Ejecución:
+Correr el script `run_app.sh` o, en su defecto:  
+
 - (Terminal 1): 
     - docker-compose up db
 - (Terminal 2):
-    - (recomendado): source venv/bin/activate (levanta un entorno virtual)
+    - source venv/bin/activate (levanta un entorno virtual)
     - pip install -r requirements.txt (instalar las dependencias) (instalar libpq-dev antes de este paso)
     - flask db upgrade (actualizar la base de datos)
     - flask run --port=8000 (correr el servidor en el puerto 8000, se puede omitir el puerto)
