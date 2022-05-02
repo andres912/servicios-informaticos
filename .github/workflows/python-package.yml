@@ -37,7 +37,7 @@ jobs:
   deploy-staging:
       needs: test
       runs-on: ubuntu-latest
-      if: ${{ needs.build.outputs.branch == 'staging' }}
+      if: github.ref == 'refs/heads/staging'
       steps:
         - uses: actions/checkout@v2
         - name: Heroku deploy
@@ -50,7 +50,7 @@ jobs:
   deploy-main:
     needs: test
     runs-on: ubuntu-latest
-    if: ${{ needs.build.outputs.branch == 'main' }}
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
       - name: Heroku deploy
