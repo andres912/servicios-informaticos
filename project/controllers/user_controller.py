@@ -45,7 +45,7 @@ class UserController(EnableableObjectController):
         Receives a user, a role id and additional arguments.
         Updates the user with new data.
         """
-        role = RoleController.load_by_id(role_id)
+        role = RoleController.load_by_id(role_id) if role_id else user.role
         updated_user = user.update(role=role, **kwargs)
 
     @classmethod
