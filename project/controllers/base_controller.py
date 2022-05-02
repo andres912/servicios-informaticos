@@ -111,3 +111,14 @@ class BaseController:
         obj.delete()
         db.session.commit()
         return obj
+
+class InexistentBaseModelInstance(ValidationError):
+    def __init__(self, obj_name: str, parameter: str, value: Any):
+        message = {
+            "error": f"inexistent_{obj_name}",
+            "parameter": parameter,
+            "value": value,
+            "description": f"The given {parameter} is inexistent",
+            "description_es": f"El parámetro {parameter} es inexistente",
+        }
+        super().__init__(message=[message])
