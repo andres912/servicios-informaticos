@@ -117,7 +117,15 @@ class BaseController:
         """
         Deletes all Model objects from the database.
         """
-        cls.load_all().delete()
+        db.session.query(cls.object_class).delete()
+        db.session.commit()
+
+    @classmethod
+    def count(cls) -> int:
+        """
+        Returns the number of non deleted Model objects in the database.
+        """
+        return cls.object_class.query.filter_by(is_deleted=False).count()
 
 
 class InexistentBaseModelInstance(ValidationError):

@@ -11,6 +11,8 @@ class Incident(BaseModel):
     status = db.Column(db.String(20))
     created_by = db.Column(db.String(30), db.ForeignKey("user.username"))
     taken_by = db.Column(db.String(30), db.ForeignKey("user.username"))
+    created_on = db.Column(db.DateTime, default=db.func.now())
+    updated_on = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
     def __init__(
         self,

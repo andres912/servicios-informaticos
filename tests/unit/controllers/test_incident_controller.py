@@ -95,6 +95,7 @@ def test_getting_assigned_incidents_returns_all_incidents_that_have_been_assigne
     assert len(assigned_incidents) == 2
     assert unassigned_incident not in assigned_incidents
 
+
 def test_getting_unassigned_incidents_returns_all_incidents_that_have_not_yet_been_assigned_to_someone(
     init_database, saved_user, saved_alternative_user
 ):
@@ -116,3 +117,27 @@ def test_getting_unassigned_incidents_returns_all_incidents_that_have_not_yet_be
 
     assert len(unassigned_incidents) == 1
     assert unassigned_incident in unassigned_incidents
+
+
+def test_incident_deleting(init_database):
+    INCIDENT_DESCRIPTION = "The server connection to the database is not working."
+    incident = Incident(description=INCIDENT_DESCRIPTION)
+
+    IncidentController.save(incident)
+    IncidentController.delete(incident.id)
+
+    incidents = IncidentController.load_all()
+    assert len(incidents) == 0
+
+
+def test_deleting_all_incidents(init_database):
+    INCIDENT_DESCRIPTION = "The server connection to the database is not working."
+    INCIDENTS_AMOUNT = 10
+    for i in range(INCIDENTS_AMOUNT):
+        incident = Incident(description=INCIDENT_DESCRIPTION)
+        IncidentController.save(incident)
+
+    IncidentController.delete_all()
+
+    incidents = IncidentController.load_all()
+    assert len(incidents) == 0

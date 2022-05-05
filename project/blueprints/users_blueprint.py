@@ -12,7 +12,7 @@ user_schema = UserSchema()
 users_blueprint = Blueprint("users_blueprint", __name__)
 
 
-@users_blueprint.route("/signup", methods=["POST"])
+@users_blueprint.route(f"{USERS_ENDPOINT}", methods=["POST"])
 # @user_required([EDIT_USER])
 def register():
     """

@@ -4,6 +4,7 @@ from datetime import datetime
 
 from project.models.role import Role
 
+
 class User(EnableableObject):
     """
     Class that represents a user of the application
@@ -27,7 +28,6 @@ class User(EnableableObject):
     hashed_password = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(60), nullable=True)
     lastname = db.Column(db.String(60), nullable=True)
-    
 
     @property
     def permissions(self):
@@ -49,7 +49,9 @@ class User(EnableableObject):
         """
         self.username = username
         self.email = email
-        self.hashed_password = bcrypt.generate_password_hash(plaintext_password).decode("utf-8")
+        self.hashed_password = bcrypt.generate_password_hash(plaintext_password).decode(
+            "utf-8"
+        )
         self.registered_on = datetime.now()
         self.role = role
         self.is_visible = is_visible
@@ -73,19 +75,25 @@ class User(EnableableObject):
         self.username = username if username else self.username
         self.email = email if email else self.email
         if password:
-            self.hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+            self.hashed_password = bcrypt.generate_password_hash(password).decode(
+                "utf-8"
+            )
         self.role = role if role else self.role
         self.is_visible = is_visible if is_visible is not None else self.is_visible
         self.name = name if name else self.name
         self.lastname = lastname if lastname else self.lastname
-        self.last_activity_at = last_activity_at if last_activity_at is not None else self.last_activity_at
+        self.last_activity_at = (
+            last_activity_at if last_activity_at is not None else self.last_activity_at
+        )
         super()._update(**kwargs)
 
     def is_correct_password(self, plaintext_password: str) -> bool:
         return bcrypt.check_password_hash(self.hashed_password, plaintext_password)
 
     def set_password(self, plaintext_password: str):
-        self.hashed_password = bcrypt.generate_password_hash(plaintext_password).decode("utf-8")
+        self.hashed_password = bcrypt.generate_password_hash(plaintext_password).decode(
+            "utf-8"
+        )
 
     def __repr__(self):
         return f"<User: {self.email}, {self.username}, {self.role}>"

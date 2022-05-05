@@ -22,7 +22,7 @@ def get_incidents():
 # @user_required([EDIT_DISTRIBUTOR])
 def get_user_incidents(user_id):
     """
-    GET endpoint to get all Incidents.
+    GET endpoint to get all Incidents from a specific user.
     """
     incidents = IncidentController.load_incidents_assigned_to_user(username=user_id)
     return jsonify(incidents_schema.dump(incidents))
@@ -76,4 +76,6 @@ def delete_all():
     """
     DELETE endpoint to delete all Incidents.
     """
+    incidents_amount = IncidentController.count()
     IncidentController.delete_all()
+    return f"{incidents_amount} incidents have been deleted"
