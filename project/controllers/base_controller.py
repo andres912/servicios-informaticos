@@ -82,7 +82,7 @@ class BaseController:
         obj.update(**kwargs)
 
     @classmethod
-    def load_updated(cls, id: int, **kwargs) -> BaseModel:
+    def update(cls, id: int, **kwargs) -> BaseModel:
         """
         Receives an id of a Model object and args.
         Loads and updates the object with the args, then commits to the database.
@@ -111,6 +111,14 @@ class BaseController:
         obj.delete()
         db.session.commit()
         return obj
+
+    @classmethod
+    def delete_all(cls) -> None:
+        """
+        Deletes all Model objects from the database.
+        """
+        cls.load_all().delete()
+
 
 class InexistentBaseModelInstance(ValidationError):
     def __init__(self, obj_name: str, parameter: str, value: Any):

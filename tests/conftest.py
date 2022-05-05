@@ -1,5 +1,7 @@
 from project import create_app, db
 import pytest
+from project.models.incident import Incident
+from project.models.priority import PRIORITY_MEDIUM
 
 from project.models.role import Role
 from project.models.user import User
@@ -45,3 +47,28 @@ def saved_user(saved_role):
     db.session.add(user)
     db.session.commit()
     return user
+
+@pytest.fixture(scope="function")
+def saved_alternative_user(saved_role):
+    user = User(
+        username="alternative_user",
+        email="alternative_mail@fi.uba.ar",
+        plaintext_password="alternative_password",
+        role=saved_role,
+    )
+
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+@pytest.fixture(scope="function")
+def saved_incident(saved_user):
+    incident = Incident(
+        description="Generic description",
+        priority=PRIORITY_MEDIUM,
+        created_by=saved_user.username,
+    )
+
+    db.session.add(incident)
+    db.session.commit()
+    return incident

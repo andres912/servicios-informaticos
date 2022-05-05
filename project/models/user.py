@@ -4,15 +4,6 @@ from datetime import datetime
 
 from project.models.role import Role
 
-class UserEntity:
-    NONE = 0
-    PHARMACY = 1
-    DISTRIBUTOR = 2
-    PHARMA_GROUP = 3
-    KAM = 4
-    MEDICAL_VISITOR = 5
-    MEDIC = 6
-
 class User(EnableableObject):
     """
     Class that represents a user of the application
@@ -29,18 +20,14 @@ class User(EnableableObject):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+    role = db.relationship("Role", backref=db.backref("user", lazy="dynamic"))
     is_visible = db.Column(db.Boolean, nullable=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
-    email = db.Column(db.String(60), nullable=False)
+    email = db.Column(db.String(60), unique=True, nullable=False)
     hashed_password = db.Column(db.String(100), nullable=False)
-    registered_on = db.Column(db.DateTime, nullable=True)
-    entity = db.Column(db.Integer, nullable=False)  # polimorphic attribute
     name = db.Column(db.String(60), nullable=True)
     lastname = db.Column(db.String(60), nullable=True)
-    last_activity_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now())
-
-    role = db.relationship("Role", backref=db.backref("user", lazy="dynamic"))
-    __mapper_args__ = {"polymorphic_identity": UserEntity.NONE, "polymorphic_on": entity}
+    
 
     @property
     def permissions(self):

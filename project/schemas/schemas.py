@@ -23,7 +23,7 @@ class BaseModelSchema(marshmallow.SQLAlchemyAutoSchema):
 
 class IncidentSchema(BaseModelSchema):
     class Meta:
-        fields = BaseModelSchema.Meta.fields + ("title", "description")
+        fields = BaseModelSchema.Meta.fields + ("description", "priority", "status", "created_by", "taken_by")
         model = Incident
         include_relationships = True
         load_instance = True

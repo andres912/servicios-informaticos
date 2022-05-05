@@ -51,3 +51,19 @@ class ValidationError(MarshmallowError):
         if self.field_name == SCHEMA and isinstance(self.messages, dict):
             return self.messages
         return {self.field_name: self.messages}
+
+class BadQueryException():
+    """Raised when a query is malformed."""
+    
+    def __init__(self, message: str, **kwargs):
+        self.message = message
+        self.kwargs = kwargs
+        super().__init__(message)
+
+class ObjectNotFoundException():
+    """Raised when a query is malformed."""
+    
+    def __init__(self, message: str, **kwargs):
+        self.message = message
+        self.kwargs = kwargs
+        super().__init__(message)

@@ -1,0 +1,5 @@
+PRIORITY_VERY_LOW = "Muy baja"
+PRIORITY_LOW = "Baja"
+PRIORITY_MEDIUM = "Media"
+PRIORITY_HIGH = "Alta"
+PRIORITY_VERY_HIGH = "Muy alta"
