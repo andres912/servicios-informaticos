@@ -1,6 +1,7 @@
 from datetime import datetime
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
+from project.models.association_tables.configuration_item_incident import SLAConfigurationItemIncident
 
 
 class SLAConfigurationItem(ConfigurationItem):
@@ -11,9 +12,10 @@ class SLAConfigurationItem(ConfigurationItem):
     client = db.Column(db.String(200), nullable=False)
     starting_date = db.Column(db.DateTime, nullable=False)
     ending_date = db.Column(db.DateTime, nullable=False)
-    measurement_type = db.Column(db.String(100), nullable=False)
+    measurement_unit = db.Column(db.String(100), nullable=False)
     measurement_value = db.Column(db.Integer, nullable=False)
     is_crucial = db.Column(db.Boolean, default=False, nullable=False)
+    incidents = db.relationship("Incident", secondary="sla_ci_item_incident")
 
     def __init__(
         self,
@@ -28,7 +30,7 @@ class SLAConfigurationItem(ConfigurationItem):
         **kwargs
     ):
 
-        super().__init__(**kwargs)
+        super().__init__(item_class="SLA", **kwargs)
         self.service_type = service_type
         self.service_manager = service_manager
         self.client = client
@@ -65,7 +67,7 @@ class SLAConfigurationItem(ConfigurationItem):
             self.measurement_unit = measurement_unit
         if measurement_value:
             self.measurement_value = measurement_value
-        if is_crucial:
+        if is_crucial is not None: # has to be different, because it is a boolean
             self.is_crucial = is_crucial
 
             

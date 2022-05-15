@@ -1,5 +1,6 @@
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
+from project.models.association_tables.configuration_item_incident import SoftwareConfigurationItemIncident
 
 
 class SoftwareConfigurationItem(ConfigurationItem):
@@ -8,6 +9,7 @@ class SoftwareConfigurationItem(ConfigurationItem):
     provider = db.Column(db.String(200), nullable=False)
     software_version = db.Column(db.String(100), nullable=False)
     type = db.Column(db.String(100), nullable=False)
+    incidents = db.relationship("Incident", secondary="software_ci_item_incident")
 
     def __init__(
         self,
@@ -17,7 +19,7 @@ class SoftwareConfigurationItem(ConfigurationItem):
         **kwargs
     ):
 
-        super().__init__(**kwargs)
+        super().__init__(item_class="Software", **kwargs)
         self.provider = provider
         self.software_version = software_version
         self.type = type

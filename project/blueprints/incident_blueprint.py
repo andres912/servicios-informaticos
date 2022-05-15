@@ -52,9 +52,9 @@ def create_incident():
     """
     POST endpoint to create a new Incident.
     """
-    new_incident = incident_schema.load(request.json)
-    IncidentController.save(new_incident)
-    return incident_schema.dump(new_incident)
+    #new_incident = incident_schema.load(request.json)
+    incident = IncidentController.create(**request.json)
+    return incident_schema.dump(incident)
 
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<incident_id>", methods=["DELETE"])
