@@ -40,7 +40,6 @@ def upgrade():
     sa.Column('email', sa.String(length=60), nullable=False),
     sa.Column('hashed_password', sa.String(length=100), nullable=False),
     sa.Column('registered_on', sa.DateTime(), nullable=True),
-    sa.Column('entity', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=60), nullable=True),
     sa.Column('lastname', sa.String(length=60), nullable=True),
     sa.Column('last_activity_at', sa.DateTime(timezone=True), nullable=True),

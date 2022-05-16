@@ -3,6 +3,7 @@ from typing import Any, List
 from marshmallow import ValidationError
 
 from project.models.base_model import BaseModel, NullBaseModel
+from project.models.exceptions import ObjectCreationException, ObjectNotFoundException
 
 
 class InexistentBaseModelInstance(ValidationError):
@@ -35,12 +36,28 @@ class BaseController:
         raise NotImplementedError
 
     @classmethod
+    def create(cls, **kwargs):
+        """
+        Creates a new instance of the object_class
+        """
+        try:
+            new_object = cls.object_class(**kwargs)
+        except Exception as err:
+            import pdb; pdb.set_trace()
+            raise ObjectCreationException(object=cls.object_class.__name__)
+        #cls._verify_relations(new_object)
+        db.session.add(new_object)
+        db.session.commit()
+        return new_object
+
+    @classmethod
     def save(cls, new_object: BaseModel) -> None:
         """
         Receives any Model object.
         Verifies relations and saves it into the database.
         """
         cls._verify_relations(new_object)
+
         db.session.add(new_object)
         db.session.commit()
 
@@ -62,7 +79,7 @@ class BaseController:
         if obj:
             return obj
         if cls.null_object_class is None:
-            return None
+            raise ObjectNotFoundException(object=cls.object_class.__name__, id=id)
         return cls.null_object_class(id=id) if cls.null_object_class else None
 
     @classmethod
@@ -82,7 +99,7 @@ class BaseController:
         obj.update(**kwargs)
 
     @classmethod
-    def load_updated(cls, id: int, **kwargs) -> BaseModel:
+    def update(cls, id: int, **kwargs) -> BaseModel:
         """
         Receives an id of a Model object and args.
         Loads and updates the object with the args, then commits to the database.
@@ -107,10 +124,26 @@ class BaseController:
         """
         obj = cls.load_by_id(id)
         if obj is None:
-            return  # raise error?
+            raise ObjectNotFoundException()
         obj.delete()
         db.session.commit()
         return obj
+
+    @classmethod
+    def delete_all(cls) -> None:
+        """
+        Deletes all Model objects from the database.
+        """
+        db.session.query(cls.object_class).delete()
+        db.session.commit()
+
+    @classmethod
+    def count(cls) -> int:
+        """
+        Returns the number of non deleted Model objects in the database.
+        """
+        return cls.object_class.query.filter_by(is_deleted=False).count()
+
 
 class InexistentBaseModelInstance(ValidationError):
     def __init__(self, obj_name: str, parameter: str, value: Any):

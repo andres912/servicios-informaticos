@@ -1,0 +1,3 @@
+PRIORITY_LOW = "Baja"
+PRIORITY_MEDIUM = "Media"
+PRIORITY_HIGH = "Alta"

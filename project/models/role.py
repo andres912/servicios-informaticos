@@ -13,7 +13,6 @@ class Role(BaseModel):
 
     __tablename__ = "role"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(30), unique=True, nullable=False)
     permissions = db.Column(MutableList.as_mutable(PickleType), default=[])
 

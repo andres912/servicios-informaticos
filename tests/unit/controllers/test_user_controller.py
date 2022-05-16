@@ -5,7 +5,7 @@ from project.controllers.base_controller import (
     InexistentBaseModelInstance,
     ValidationError,
 )
-from project.models.user import User, UserEntity
+from project.models.user import User
 from project.models.role import Role
 
 

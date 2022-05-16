@@ -5,6 +5,7 @@ import typing
 # Key used for schema-level validation errors
 SCHEMA = "_schema"
 
+
 class MarshmallowError(Exception):
     """Base class for all marshmallow-related errors."""
 
@@ -34,8 +35,7 @@ class ValidationError(MarshmallowError):
         ] = None,
         valid_data: typing.Optional[
             typing.Union[
-                typing.List[typing.Dict[str, typing.Any]],
-                typing.Dict[str, typing.Any],
+                typing.List[typing.Dict[str, typing.Any]], typing.Dict[str, typing.Any]
             ]
         ] = None,
         **kwargs,
@@ -51,3 +51,51 @@ class ValidationError(MarshmallowError):
         if self.field_name == SCHEMA and isinstance(self.messages, dict):
             return self.messages
         return {self.field_name: self.messages}
+
+
+class BadQueryException:
+    """Raised when a query is malformed."""
+
+    def __init__(self, message: str, **kwargs):
+        self.message = message
+        self.kwargs = kwargs
+        super().__init__(message)
+
+
+class ObjectNotFoundException(Exception):
+    """Raised when an object is not found in the database"""
+
+    def __init__(self, object_name: str = None, object_id: int = None, **kwargs):
+        self.object_name = object_name
+        self.object_id = object_id
+        self.kwargs = kwargs
+
+
+class InvalidFieldsException(Exception):
+    """Raised when a query is malformed."""
+
+    def __init__(self, cause, invalid_fields=[], **kwargs):
+        self.kwargs = kwargs
+        self.cause = cause
+        self.invalid_fields = invalid_fields
+
+class MissingFieldsException(InvalidFieldsException):
+    """Raised when a query is malformed."""
+
+    def __init__(self, missing_fields=[], **kwargs):
+        super().__init__("Missing Fields", missing_fields, **kwargs)
+
+
+class ExtraFieldsException(InvalidFieldsException):
+    """Raised when a query is malformed."""
+
+    def __init__(self, extra_fields=[], **kwargs):
+        super().__init__("Extra Fields", extra_fields, **kwargs)
+
+class ObjectCreationException(Exception):
+    """Raised when an object could not be created"""
+
+    def __init__(self, object, **kwargs):
+        self.kwargs = kwargs
+        self.object = object
+
