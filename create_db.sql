@@ -1,5 +1,5 @@
 ALTER ROLE postgres PASSWORD 'example';
 
-CREATE DATABASE proy_inf;
+CREATE DATABASE serv_inf;
 
-GRANT ALL PRIVILEGES ON DATABASE "proy_inf" to postgres;
+GRANT ALL PRIVILEGES ON DATABASE "serv_inf" to postgres;

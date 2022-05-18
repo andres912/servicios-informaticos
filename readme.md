@@ -24,6 +24,7 @@
     - (recomendado) (una única vez): python3 -m venv ruta-a-repositorio/order-it-backend/venv (creación de entorno virtual)
     - (recomendado): source venv/bin/activate (levanta entorno virtual)
     - pip install -r requirements.txt (instalar las dependencias) (instalar libpq-dev antes de este paso)
+    - export $(cat .env.dev | xargs)
     - flask db upgrade (actualizar la base de datos)
     - flask run --port=8000 (correr el servidor en el puerto 8000, se puede omitir el puerto)
     
