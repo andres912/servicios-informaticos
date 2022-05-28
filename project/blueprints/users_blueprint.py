@@ -23,7 +23,7 @@ def register():
     username = request.json["username"]
     email = request.json["email"]
     password = request.json["password"]
-    role_id = request.json["role_id"]
+    role_id = request.json["role_id"] if "role_id" in request.json else None
     name = request.json["name"] if "name" in request.json else None
     lastname = request.json["lastname"] if "lastname" in request.json else None
 

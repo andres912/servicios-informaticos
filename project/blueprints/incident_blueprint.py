@@ -19,14 +19,27 @@ def get_incidents():
     incidents = IncidentController.load_all()
     return jsonify(incidents_schema.dump(incidents))
 
-@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<user_id>", methods=["GET"])
+# @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<user_id>", methods=["GET"])
+# # @user_required([EDIT_DISTRIBUTOR])
+# def get_user_incidents(user_id):
+#     """
+#     GET endpoint to get all Incidents from a specific user.
+#     """
+#     incidents = IncidentController.load_incidents_assigned_to_user(username=user_id)
+#     return jsonify(incidents_schema.dump(incidents))
+
+@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<incident_id>", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
-def get_user_incidents(user_id):
+def get_incident(incident_id):
     """
-    GET endpoint to get all Incidents from a specific user.
+    GET endpoint to get an Incident.
     """
-    incidents = IncidentController.load_incidents_assigned_to_user(username=user_id)
-    return jsonify(incidents_schema.dump(incidents))
+    try:
+        incident = IncidentController.load_by_id(incident_id)
+        return incident_schema.dump(incident), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
+
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/assigned", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
