@@ -38,6 +38,13 @@ class HardwareConfigurationItemController(BaseController):
         item.update(**kwargs)
         db.session.commit()
         return item
+
+    @classmethod
+    def load_by_name(cls, item_name: str) -> HardwareConfigurationItem:
+        """
+        Updates and saves HardwareConfigurationItem object.
+        """
+        return cls.object_class.query.filter_by(name=item_name).first()
     
     
         

@@ -43,7 +43,6 @@ class BaseController:
         try:
             new_object = cls.object_class(**kwargs)
         except Exception as err:
-            import pdb; pdb.set_trace()
             raise ObjectCreationException(object=cls.object_class.__name__)
         #cls._verify_relations(new_object)
         db.session.add(new_object)

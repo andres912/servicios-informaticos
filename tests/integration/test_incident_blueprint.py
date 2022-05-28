@@ -11,7 +11,6 @@ def test_incident_post(test_client, init_database, saved_user, saved_hardware_co
     INCIDENT_DESCRIPTION = "The server connection to the database is not working."
     INCIDENT_PRIORITY = PRIORITY_MEDIUM
     INCIDENT_CREATED_BY = saved_user.username
-    hardware_configuration_items = [saved_hardware_configuration_item.id]
 
     response = test_client.post(
         "/incidents",
@@ -19,7 +18,7 @@ def test_incident_post(test_client, init_database, saved_user, saved_hardware_co
             "description": INCIDENT_DESCRIPTION,
             "priority": INCIDENT_PRIORITY,
             "created_by": INCIDENT_CREATED_BY,
-            "hardware_configuration_items": hardware_configuration_items,
+            "item_name_0": saved_hardware_configuration_item.name,
         }
     )
     assert response.status_code == 200
@@ -27,3 +26,4 @@ def test_incident_post(test_client, init_database, saved_user, saved_hardware_co
     assert response.json["priority"] == INCIDENT_PRIORITY
     assert response.json["status"] == STATUS_PENDING
     assert response.json["created_by"] == INCIDENT_CREATED_BY
+

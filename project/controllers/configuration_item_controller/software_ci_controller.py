@@ -37,5 +37,10 @@ class SoftwareConfigurationItemController(BaseController):
         return item
 
 
-    
+    @classmethod
+    def load_by_name(cls, item_name: str) -> SoftwareConfigurationItem:
+        """
+        Updates and saves HardwareConfigurationItem object.
+        """
+        return cls.object_class.query.filter_by(name=item_name).first()
     

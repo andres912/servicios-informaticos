@@ -75,28 +75,5 @@ class IncidentController(BaseController):
 
     @classmethod
     def create(cls, **kwargs) -> Incident:
-        modified_parameters = cls.add_configuration_items(**kwargs)
-        return super().create(**modified_parameters)
-
-    @classmethod
-    def add_configuration_items(cls, **kwargs):
-        hardware_ci_ids = kwargs.get("hardware_configuration_items", [])
-        software_ci_ids = kwargs.get("software_configuration_items", [])
-        sla_ci_ids = kwargs.get("sla_configuration_items", [])
-        hardware_configuration_items = [
-            HardwareConfigurationItemController.load_by_id(item_id)
-            for item_id in hardware_ci_ids
-        ]
-        software_configuration_items = [
-            SoftwareConfigurationItemController.load_by_id(item_id)
-            for item_id in software_ci_ids
-        ]
-        sla_configuration_items = [
-            SLAConfigurationItemController.load_by_id(item_id) for item_id in sla_ci_ids
-        ]
-
-        kwargs["hardware_configuration_items"] = hardware_configuration_items
-        kwargs["software_configuration_items"] = software_configuration_items
-        kwargs["sla_configuration_items"] = sla_configuration_items
-        return kwargs
+        return super().create(**kwargs)
 

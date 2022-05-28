@@ -47,9 +47,43 @@ class IncidentSchema(BaseModelSchema):
         include_relationships = True
         load_instance = True
 
-    hardware_configuration_items = fields.Nested("HardwareConfigurationItemSchema", many=True, only={"name", "description", "type"})
-    software_configuration_items = fields.Nested("SoftwareConfigurationItemSchema", many=True, only={"name", "description", "type"})
-    sla_configuration_items = fields.Nested("SLAConfigurationItemSchema", many=True, only={"name", "description", "service_type"})
+    hardware_configuration_items = fields.Nested(
+        "HardwareConfigurationItemSchema",
+        many=True,
+        only={"name", "description", "type"},
+    )
+    software_configuration_items = fields.Nested(
+        "SoftwareConfigurationItemSchema",
+        many=True,
+        only={"name", "description", "type"},
+    )
+    sla_configuration_items = fields.Nested(
+        "SLAConfigurationItemSchema",
+        many=True,
+        only={"name", "description", "service_type"},
+    )
+
+
+class ProblemSchema(BaseModelSchema):
+    class Meta:
+        fields = BaseModelSchema.Meta.fields + (
+            "description",
+            "priority",
+            "status",
+            "created_by",
+            "taken_by",
+            "impact",
+            "cause",
+            "solution",
+            "incidents",
+        )
+        model = Incident
+        include_relationships = True
+        load_instance = True
+
+    incidents = fields.Nested(
+        "IncidentSchema", many=True, only={"description", "status", "priority"}
+    )
 
 
 class RoleSchema(BaseModelSchema):
@@ -114,6 +148,7 @@ class ConfigurationItemSchema(BaseModelSchema):
             "description",
             "version",
             "item_family_id",
+            "item_class"
         )
         include_relationships = True
         load_instance = True
@@ -131,6 +166,7 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
         model = HardwareConfigurationItem
         include_relationships = True
         load_instance = True
+
     purchase_date = fields.fields.DateTime(format=DATE_FORMAT)
 
 
@@ -161,5 +197,6 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
         model = SLAConfigurationItem
         include_relationships = True
         load_instance = True
+
     starting_date = fields.fields.DateTime(format=DATE_FORMAT)
     ending_date = fields.fields.DateTime(format=DATE_FORMAT)

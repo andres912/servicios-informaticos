@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from project.controllers.incident_controller import IncidentController
 from project.schemas.schemas import IncidentSchema
+from project.helpers.incident_request_helper import IncidentRequestHelper
 
 INCIDENTS_ENDPOINT = "/incidents"
 
@@ -52,8 +53,8 @@ def create_incident():
     """
     POST endpoint to create a new Incident.
     """
-    #new_incident = incident_schema.load(request.json)
-    incident = IncidentController.create(**request.json)
+    correct_request = IncidentRequestHelper.create_incident_request(request.json)
+    incident = IncidentController.create(**correct_request)
     return incident_schema.dump(incident)
 
 
