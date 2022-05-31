@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from project.controllers.incident_controller import IncidentController
-from project.schemas.schemas import IncidentSchema
+from project.schemas.schemas import AlternativeIncidentSchema, IncidentSchema
 from project.helpers.incident_request_helper import IncidentRequestHelper
 
 INCIDENTS_ENDPOINT = "/incidents"
@@ -8,6 +8,7 @@ INCIDENTS_ENDPOINT = "/incidents"
 incident_blueprint = Blueprint("incidents_blueprint", __name__)
 incident_schema = IncidentSchema()
 incidents_schema = IncidentSchema(many=True)
+alternative_incident_schema = AlternativeIncidentSchema()
 
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["GET"])
@@ -36,7 +37,7 @@ def get_incident(incident_id):
     """
     try:
         incident = IncidentController.load_by_id(incident_id)
-        return incident_schema.dump(incident), 200
+        return alternative_incident_schema.dump(incident), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404
 
@@ -93,3 +94,12 @@ def delete_all():
     incidents_amount = IncidentController.count()
     IncidentController.delete_all()
     return f"{incidents_amount} incidents have been deleted"
+
+@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<incident_id>", methods=["PATCH"])
+# @user_required([EDIT_DISTRIBUTOR])
+def update_incident(incident_id):
+    """
+    POST endpoint to create a new Incident.
+    """
+    incident = IncidentController.update(id=incident_id, **request.json)
+    return incident_schema.dump(incident)

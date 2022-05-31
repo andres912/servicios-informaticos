@@ -63,6 +63,31 @@ class IncidentSchema(BaseModelSchema):
         only={"name", "description", "service_type"},
     )
 
+class AlternativeIncidentSchema(BaseModelSchema):
+    class Meta:
+        fields = BaseModelSchema.Meta.fields + (
+            "description",
+            "priority",
+            "status",
+            "created_by",
+            "taken_by",
+            "configuration_items"
+        )
+        model = Incident
+        include_relationships = True
+        load_instance = True
+
+    configuration_items = fields.fields.Method("get_configuration_items")
+
+    def get_configuration_items(self, obj: Incident) -> list:
+        return [
+            {"id": item.id, "name": item.name, "type": item.item_class}
+            for item in obj.hardware_configuration_items
+            + obj.software_configuration_items
+            + obj.sla_configuration_items
+        ]
+
+
 
 class ProblemSchema(BaseModelSchema):
     class Meta:
