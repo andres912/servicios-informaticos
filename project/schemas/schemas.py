@@ -42,6 +42,7 @@ class IncidentSchema(BaseModelSchema):
             "hardware_configuration_items",
             "software_configuration_items",
             "sla_configuration_items",
+            "is_blocked"
         )
         model = Incident
         include_relationships = True
@@ -71,7 +72,8 @@ class AlternativeIncidentSchema(BaseModelSchema):
             "status",
             "created_by",
             "taken_by",
-            "configuration_items"
+            "configuration_items",
+            "is_blocked"
         )
         model = Incident
         include_relationships = True

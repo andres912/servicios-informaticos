@@ -20,6 +20,7 @@ class Incident(BaseModel):
     hardware_configuration_items = db.relationship("HardwareConfigurationItem", secondary="hardware_ci_item_incident")
     software_configuration_items = db.relationship("SoftwareConfigurationItem", secondary="software_ci_item_incident")
     sla_configuration_items = db.relationship("SLAConfigurationItem", secondary="sla_ci_item_incident")
+    is_blocked = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
@@ -39,9 +40,16 @@ class Incident(BaseModel):
         self.sla_configuration_items = sla_configuration_items
         self.status = STATUS_PENDING
         self.taken_by = None
+        self.is_blocked = False
 
 
-    def _update(self, title: str = None, description: str = None, priority: str = None, status: str = None, taken_by: str = None) -> None:
+    def _update(self,
+                title: str = None,
+                description: str = None,
+                priority: str = None,
+                status: str = None,
+                taken_by: str = None,
+                is_blocked: bool = None) -> None:
         if title:
             self.title = title
         if description:
@@ -52,6 +60,8 @@ class Incident(BaseModel):
             self.status = status
         if taken_by:
             self.taken_by = taken_by
+        if is_blocked != None:
+            self.is_blocked = is_blocked
 
     def change_status(self, status: str) -> None:
         self._update(self, status=status)
