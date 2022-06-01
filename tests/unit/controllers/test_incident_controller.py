@@ -40,6 +40,7 @@ def test_getting_incidentes_created_by_specific_user(
     SECOND_INCIDENT_CREATED_BY = saved_alternative_user.username
     INCIDENT_HARDWARE_CONFIGURATION_ITEMS = [saved_hardware_configuration_item]
 
+
     first_incident_arguments = {
         "description": FIRST_INCIDENT_DESCRIPTION,
         "created_by": FIRST_INCIDENT_CREATED_BY,
@@ -77,6 +78,7 @@ def test_getting_incidentes_taken_by_specific_user(
     FIRST_INCIDENT_CREATED_BY = saved_user.username
     SECOND_INCIDENT_CREATED_BY = saved_alternative_user.username
     INCIDENT_HARDWARE_CONFIGURATION_ITEMS = [saved_hardware_configuration_item]
+
 
     first_incident_arguments = {
         "description": FIRST_INCIDENT_DESCRIPTION,
@@ -119,6 +121,7 @@ def test_getting_assigned_incidents_returns_all_incidents_that_have_been_assigne
     SECOND_INCIDENT_CREATED_BY = saved_alternative_user.username
     INCIDENT_HARDWARE_CONFIGURATION_ITEMS = [saved_hardware_configuration_item]
 
+
     first_incident_arguments = {
         "description": FIRST_INCIDENT_DESCRIPTION,
         "created_by": FIRST_INCIDENT_CREATED_BY,
@@ -158,6 +161,7 @@ def test_getting_unassigned_incidents_returns_all_incidents_that_have_not_yet_be
     SECOND_INCIDENT_CREATED_BY = saved_alternative_user.username
     INCIDENT_HARDWARE_CONFIGURATION_ITEMS = [saved_hardware_configuration_item]
 
+
     first_incident_arguments = {
         "description": FIRST_INCIDENT_DESCRIPTION,
         "created_by": FIRST_INCIDENT_CREATED_BY,
@@ -194,6 +198,7 @@ def test_incident_deletion(init_database, saved_hardware_configuration_item):
     incident = IncidentController.create(
         description=INCIDENT_DESCRIPTION,
         hardware_configuration_items=[saved_hardware_configuration_item],
+
     )
 
     IncidentController.delete(incident.id)
@@ -210,6 +215,7 @@ def test_deleting_all_incidents(init_database, saved_hardware_configuration_item
         IncidentController.create(
         description=INCIDENT_DESCRIPTION,
         hardware_configuration_items=[saved_hardware_configuration_item],
+
     )
 
     starting_incidents_amount = len(IncidentController.load_all())

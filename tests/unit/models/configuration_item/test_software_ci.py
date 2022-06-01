@@ -80,3 +80,4 @@ def test_software_configuration_item_update(init_database, saved_user):
     assert item.type == ITEM_NEW_TYPE
     assert item.provider == ITEM_NEW_PROVIDER
     assert item.software_version == ITEM_NEW_SOFTWARE_VERSION
+

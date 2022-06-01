@@ -67,6 +67,7 @@ class ObjectNotFoundException(Exception):
 
     def __init__(self, object_name: str = None, object_id: int = None, **kwargs):
         self.message = f"Object of type '{object_name}' with id '{object_id}' not found."
+
         self.object_name = object_name
         self.object_id = object_id
         self.kwargs = kwargs

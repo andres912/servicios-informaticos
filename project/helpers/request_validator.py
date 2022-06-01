@@ -48,3 +48,4 @@ class RequestValidator:
         for key in request_json.keys():
             if "_date" in key:
                 request_json[key] = DateHelper.get_date_from_string(request_json[key])
+

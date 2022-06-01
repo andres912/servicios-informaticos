@@ -77,3 +77,4 @@ class IncidentController(BaseController):
     def create(cls, **kwargs) -> Incident:
         return super().create(**kwargs)
 
+

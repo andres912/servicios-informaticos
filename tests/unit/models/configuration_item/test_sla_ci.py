@@ -115,3 +115,4 @@ def test_software_configuration_item_update(init_database, saved_user):
     assert item.ending_date == ITEM_NEW_ENDING_DATE
     assert item.measurement_unit == ITEM_NEW_MEASUREMENT_UNIT
     assert item.measurement_value == ITEM_NEW_MEASUREMENT_VALUE
+

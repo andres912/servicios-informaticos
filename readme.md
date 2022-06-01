@@ -17,12 +17,21 @@
 - (Librería no relacionada a Python): libpq-dev (sudo apt-get install libpq-dev) -> necesaria para instalar psycopg2
 - (Para ejecución local): crear en Postgresql una base de datos llamada "proy_inf" con pass "example"
    
+### Preparación (ubuntu):
+```sh
+sudo apt install libpq-dev
+python3 -m venv venv
+```
+
 ### Ejecución:
+Correr el script `run_app.sh` o, en su defecto:  
+
 - (Terminal 1): 
     - docker-compose up db
 - (Terminal 2):
     - (recomendado) (una única vez): python3 -m venv ruta-a-repositorio/order-it-backend/venv (creación de entorno virtual)
     - (recomendado): source venv/bin/activate (levanta entorno virtual)
+    - source venv/bin/activate (levanta un entorno virtual)
     - pip install -r requirements.txt (instalar las dependencias) (instalar libpq-dev antes de este paso)
     - export $(cat .env.dev | xargs)
     - flask db upgrade (actualizar la base de datos)

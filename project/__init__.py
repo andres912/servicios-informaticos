@@ -12,6 +12,13 @@ marshmallow = Marshmallow()
 bcrypt = Bcrypt()
 cors = CORS()
 
+def register_tables():
+    from project.models.association_tables.configuration_item_incident import HardwareConfigurationItemIncident
+    from project.models.association_tables.configuration_item_incident import SoftwareConfigurationItemIncident
+    from project.models.association_tables.configuration_item_incident import SLAConfigurationItemIncident
+    
+    pass
+
 def register_blueprints(app):
     from project.blueprints.change_blueprint import change_blueprint
     from project.blueprints.incident_blueprint import incident_blueprint
@@ -25,6 +32,7 @@ def register_blueprints(app):
     from project.blueprints.configuration_item_blueprint.sla_ci_blueprint import sla_ci_blueprint
     from project.blueprints.configuration_item_blueprint.configuration_items_blueprint import ci_blueprint
 
+
     app.register_blueprint(change_blueprint)
     app.register_blueprint(incident_blueprint)
     app.register_blueprint(problem_blueprint)
@@ -35,13 +43,16 @@ def register_blueprints(app):
     app.register_blueprint(hardware_ci_blueprint)
     app.register_blueprint(software_ci_blueprint)
     app.register_blueprint(sla_ci_blueprint)
+
     app.register_blueprint(ci_blueprint)
+
 
 def create_app(config_filename=None):
     app = Flask(__name__, instance_relative_config=True)  
     app.config.from_pyfile(config_filename)
     initialize_extensions(app)
     register_blueprints(app)
+    register_tables()
     return app
 
 def initialize_extensions(app):

@@ -42,6 +42,7 @@ def test_incident_creation(init_database, saved_user, saved_hardware_configurati
     assert incident.description == INCIDENT_DESCRIPTION
     assert incident.priority == INCIDENT_PRIORITY
     assert incident.status == STATUS_PENDING
+
     assert incident.created_by == INCIDENT_CREATED_BY
     assert incident.taken_by == None
     assert incident.hardware_configuration_items == [saved_hardware_configuration_item]
@@ -108,3 +109,4 @@ def test_change_inicident_priority(init_database, _db, saved_incident):
 def test_take_incident(init_database, _db, saved_incident):
     saved_incident.assign_user(saved_incident.created_by)
     assert saved_incident.taken_by == saved_incident.created_by
+

@@ -12,6 +12,7 @@ def test_incident_post(test_client, init_database, saved_user, saved_hardware_co
     INCIDENT_PRIORITY = PRIORITY_MEDIUM
     INCIDENT_CREATED_BY = saved_user.username
 
+
     response = test_client.post(
         "/incidents",
         json={
@@ -19,6 +20,7 @@ def test_incident_post(test_client, init_database, saved_user, saved_hardware_co
             "priority": INCIDENT_PRIORITY,
             "created_by": INCIDENT_CREATED_BY,
             "item_name_0": saved_hardware_configuration_item.name,
+
         }
     )
     assert response.status_code == 200

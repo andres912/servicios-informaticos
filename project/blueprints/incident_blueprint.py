@@ -60,6 +60,33 @@ def get_unassigned_incidents():
     incidents = IncidentController.load_unassigned_incidents()
     return jsonify(incidents_schema.dump(incidents))
 
+@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<user_id>", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_user_incidents(user_id):
+    """
+    GET endpoint to get all Incidents from a specific user.
+    """
+    incidents = IncidentController.load_incidents_assigned_to_user(username=user_id)
+    return jsonify(incidents_schema.dump(incidents))
+
+@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/assigned", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_assigned_incidents():
+    """
+    GET endpoint to get all Incidents.
+    """
+    incidents = IncidentController.load_assigned_incidents()
+    return jsonify(incidents_schema.dump(incidents))
+
+@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/not-assigned", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_unassigned_incidents():
+    """
+    GET endpoint to get all Incidents.
+    """
+    incidents = IncidentController.load_unassigned_incidents()
+    return jsonify(incidents_schema.dump(incidents))
+
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["POST"])
 # @user_required([EDIT_DISTRIBUTOR])
@@ -67,8 +94,10 @@ def create_incident():
     """
     POST endpoint to create a new Incident.
     """
+
     correct_request = IncidentRequestHelper.create_incident_request(request.json)
     incident = IncidentController.create(**correct_request)
+
     return incident_schema.dump(incident)
 
 
@@ -95,6 +124,7 @@ def delete_all():
     IncidentController.delete_all()
     return f"{incidents_amount} incidents have been deleted"
 
+
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<incident_id>", methods=["PATCH"])
 # @user_required([EDIT_DISTRIBUTOR])
 def update_incident(incident_id):
@@ -103,3 +133,4 @@ def update_incident(incident_id):
     """
     incident = IncidentController.update(id=incident_id, **request.json)
     return incident_schema.dump(incident)
+
