@@ -42,23 +42,6 @@ def get_incident(incident_id):
         return jsonify({"error": str(e)}), 404
 
 
-@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/assigned", methods=["GET"])
-# @user_required([EDIT_DISTRIBUTOR])
-def get_assigned_incidents():
-    """
-    GET endpoint to get all Incidents.
-    """
-    incidents = IncidentController.load_assigned_incidents()
-    return jsonify(incidents_schema.dump(incidents))
-
-@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/not-assigned", methods=["GET"])
-# @user_required([EDIT_DISTRIBUTOR])
-def get_unassigned_incidents():
-    """
-    GET endpoint to get all Incidents.
-    """
-    incidents = IncidentController.load_unassigned_incidents()
-    return jsonify(incidents_schema.dump(incidents))
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<user_id>", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
