@@ -80,6 +80,8 @@ class InvalidFieldsException(Exception):
         self.kwargs = kwargs
         self.cause = cause
         self.invalid_fields = invalid_fields
+        self.message = f"{self.cause}: {self.invalid_fields}"
+
 
 class MissingFieldsException(InvalidFieldsException):
     """Raised when a query is malformed."""
@@ -94,10 +96,112 @@ class ExtraFieldsException(InvalidFieldsException):
     def __init__(self, extra_fields=[], **kwargs):
         super().__init__("Extra Fields", extra_fields, **kwargs)
 
-class ObjectCreationException(Exception):
-    """Raised when an object could not be created"""
 
-    def __init__(self, object, **kwargs):
+class MissingRequestParameterError(Exception):
+    """Raised when a required field is missing."""
+
+    def __init__(self, message: str = None, **kwargs):
+        self.message = message
         self.kwargs = kwargs
-        self.object = object
+        super().__init__(message)
 
+
+class LoginValidationException(Exception):
+    """Raised when login data is incorrect"""
+
+    def __init__(self, message: str = None, **kwargs):
+        self.message = message if message else "Login data is incorrect"
+        self.kwargs = kwargs
+        super().__init__(message)
+
+
+class ObjectCreationException(Exception):
+    """Raised when an object cannot be created"""
+
+    def __init__(self, object: str, id=None, **kwargs):
+        self.message = f"No se pudo crear el objeto {object}"
+        self.kwargs = kwargs
+
+
+class ObjectNotFoundException(Exception):
+    """Raised when an object was not found"""
+
+    def __init__(self, object: str, object_id, **kwargs):
+        self.message = "No se encontró el objeto {} con identificador {}".format(
+            object, object_id
+        )
+        self.kwargs = kwargs
+
+
+class ObjectUpdateException(Exception):
+    """Raised when an object cannot be created"""
+
+    def __init__(self, object: str, **kwargs):
+        self.message = "Hubo un problema con la creación del objeto {}, probablemente por un parámetro inválido".format(
+            object
+        )
+        self.kwargs = kwargs
+
+
+class IncorrectRoleException(Exception):
+    """Raised when a related instance is not found"""
+
+    def __init__(self, current_role, needed_role, **kwargs):
+        self.message = "El usuario tiene rol {} y necesita ser {}".format(
+            current_role, needed_role
+        )
+
+
+class RepeatedUniqueFieldException(Exception):
+    """Raised when a related instance is not found"""
+
+    def __init__(self, object, key, **kwargs):
+        self.message = "Ya existe un objeto de tipo {} con el identificador {}".format(
+            object, key
+        )
+
+
+class IncorrectTokenException(LoginValidationException):
+    """Raised when the id in the token differs from the one in the request"""
+
+    def __init__(self, token_id: int, request_id: int, **kwargs):
+        self.message = f"El id {token_id} del token no coincide con el id {request_id} de la request"
+        self.kwargs = kwargs
+
+
+class AuthorizationNotPresentException(LoginValidationException):
+    """Raised when the id in the token differs from the one in the request"""
+
+    def __init__(self, **kwargs):
+        self.message = (
+            f"No se encontró autorización en el header o su formato es inválido"
+        )
+        self.kwargs = kwargs
+
+
+class DependencyMismatchException(Exception):
+    """Raised when there is a dependency mismatch between 2 objects"""
+
+    def __init__(
+        self, object: str, id: int, second_object: str, second_id: int, **kwargs
+    ):
+        self.message = "El objeto {} con id {} no pertence al objeto {} con id {}".format(
+            object, id, second_object, second_id
+        )
+        self.kwargs = kwargs
+
+
+class UpdateException(Exception):
+    """Raised when there is an error with the new state of an object"""
+
+    def __init__(self, object: str, id: int, **kwargs):
+        self.message = "El objeto {} con id {} no puede actualizarse".format(object, id)
+        self.kwargs = kwargs
+
+
+class OrderStatusNotValidException(Exception):
+    """Raised when there is an error with the update of an order status"""
+
+    def __init__(self, current_status: str, new_status: str, **kwargs):
+        self.message = f"No se puede actualizar el pedido del estado {current_status} al estado {new_status}"
+        self.kwargs = kwargs

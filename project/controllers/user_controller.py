@@ -3,7 +3,7 @@ from typing import Any, List
 from project import db
 from project.controllers.enableable_object_controller import EnableableObjectController
 from project.controllers.role_controller import RoleController
-from project.models.exceptions import ValidationError
+from project.models.exceptions import RepeatedUniqueFieldException, ValidationError
 from project.models.user import User
 from project.controllers.base_controller import InexistentBaseModelInstance
 
@@ -49,15 +49,15 @@ class UserController(EnableableObjectController):
         updated_user = user.update(role=role, **kwargs)
 
     @classmethod
-    def load(cls, username: str, password: str) -> User:
+    def load(cls, email: str, password: str) -> User:
         """
         Used by login.
         Receives a username & password and verifies if they are correct.
         Returns the user if data is correct.
         """
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(email=email).first()
         if not user:
-            raise InexistentBaseModelInstance("user", "username", username)
+            raise InexistentBaseModelInstance("user", "email", email)
         if not user.is_correct_password(password):
             raise ValidationError(
                 message=[
@@ -100,27 +100,15 @@ class UserController(EnableableObjectController):
         return user
 
     @classmethod
-    def verify_existent_active_user(cls, username: str) -> bool:
+    def verify_existent_active_user(cls, username: str = None, email: str = None) -> bool:
         """
         Receives a username and verifies existence, if it exists it raises an error.
         Otherwise returns True by default.
         """
-        user_by_username = User.query.filter_by(
-            username=username, is_deleted=False
-        ).first()
-        if user_by_username:
-            raise ValidationError(
-                message=[
-                    get_validation_error_message(
-                        "user",
-                        "username",
-                        "already exists",
-                        "El usuario ya existe",
-                        value=username,
-                    )
-                ]
-            )
-        return True
+        user_by_username = User.query.filter_by(username=username).first() if username else None
+        user_by_email = User.query.filter_by(email=email).first() if email else None
+        if user_by_username or user_by_email:
+            raise RepeatedUniqueFieldException(object="User", key=username if username else email)
 
     # NOT USED BUT FUNCTIONAL
     @classmethod
@@ -139,42 +127,21 @@ class UserController(EnableableObjectController):
         db.session.commit()
 
     @classmethod
-    def create(
-        cls,
-        username,
-        email,
-        password,
-        role_id,
-        is_visible: bool = True,
-        name: str = None,
-        lastname: str = None,
-    ) -> User:
+    def create(cls, username: str, email: str, role_id: int, **kwargs) -> User:
         """
         Receives user data and additional arguments.
         Calls UserCreator to create the user.
         Returns a new user.
         """
 
-        is_user_deleted = cls.is_user_deleted(username)
-        if is_user_deleted:
-            user = User.query.filter_by(username=username).first()
-            user.update(is_deleted=False)
-            return user
-
         # Verify existent user, if there is an error it will be raised
-        cls.verify_existent_active_user(username)
+        cls.verify_existent_active_user(username=username)
+        cls.verify_existent_active_user(email=email)
 
         role = RoleController.load_by_id(role_id)
-
-        new_user = User(
-            username=username,
-            email=email,
-            plaintext_password=password,
-            role=role,
-            is_visible=is_visible,
-            name=name,
-            lastname=lastname,
-        )
+        new_user = User(username=username, role=role, email=email, **kwargs)
+        db.session.add(new_user)
+        db.session.commit()
 
         return new_user
 

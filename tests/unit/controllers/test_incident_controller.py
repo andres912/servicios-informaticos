@@ -94,8 +94,8 @@ def test_getting_incidentes_taken_by_specific_user(
     first_incident = IncidentController.create(**first_incident_arguments)
     second_incident = IncidentController.create(**second_incident_arguments)
 
-    IncidentController.assign_incident_to_user(first_incident.id, saved_user.username)
-    IncidentController.assign_incident_to_user(
+    IncidentController.assign_to_user(first_incident.id, saved_user.username)
+    IncidentController.assign_to_user(
         second_incident.id, saved_alternative_user.username
     )
 
@@ -141,12 +141,12 @@ def test_getting_assigned_incidents_returns_all_incidents_that_have_been_assigne
     second_incident = IncidentController.create(**second_incident_arguments)
     unassigned_incident = IncidentController.create(**unassigned_incident_arguments)
 
-    IncidentController.assign_incident_to_user(first_incident.id, saved_user.username)
-    IncidentController.assign_incident_to_user(
+    IncidentController.assign_to_user(first_incident.id, saved_user.username)
+    IncidentController.assign_to_user(
         second_incident.id, saved_alternative_user.username
     )
 
-    assigned_incidents = IncidentController.load_assigned_incidents()
+    assigned_incidents = IncidentController.load_assigned()
 
     assert len(assigned_incidents) == 2
     assert unassigned_incident not in assigned_incidents
@@ -181,12 +181,12 @@ def test_getting_unassigned_incidents_returns_all_incidents_that_have_not_yet_be
     second_incident = IncidentController.create(**second_incident_arguments)
     unassigned_incident = IncidentController.create(**unassigned_incident_arguments)
 
-    IncidentController.assign_incident_to_user(first_incident.id, saved_user.username)
-    IncidentController.assign_incident_to_user(
+    IncidentController.assign_to_user(first_incident.id, saved_user.username)
+    IncidentController.assign_to_user(
         second_incident.id, saved_alternative_user.username
     )
 
-    unassigned_incidents = IncidentController.load_unassigned_incidents()
+    unassigned_incidents = IncidentController.load_unassigned()
 
     assert len(unassigned_incidents) == 1
     assert unassigned_incident in unassigned_incidents
@@ -236,4 +236,8 @@ def test_retreiving_incident_configuration_items(
     assert len(configuration_item_incidents) == 1
     assert len(incident_hardware_configuration_items) == 1
     assert configuration_item_incidents[0].id == saved_incident.id
-    assert incident_hardware_configuration_items[0].id == saved_hardware_configuration_item.id
+    assert (
+        incident_hardware_configuration_items[0].id
+        == saved_hardware_configuration_item.id
+    )
+

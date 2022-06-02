@@ -37,7 +37,7 @@ class User(EnableableObject):
         self,
         username: str,
         email: str,
-        plaintext_password: str,
+        password: str,
         role: Role,
         is_visible: bool = True,
         name: str = None,
@@ -49,9 +49,7 @@ class User(EnableableObject):
         """
         self.username = username
         self.email = email
-        self.hashed_password = bcrypt.generate_password_hash(plaintext_password).decode(
-            "utf-8"
-        )
+        self.hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
         self.registered_on = datetime.now()
         self.role = role
         self.is_visible = is_visible
@@ -87,13 +85,11 @@ class User(EnableableObject):
         )
         super()._update(**kwargs)
 
-    def is_correct_password(self, plaintext_password: str) -> bool:
-        return bcrypt.check_password_hash(self.hashed_password, plaintext_password)
+    def is_correct_password(self, password: str) -> bool:
+        return bcrypt.check_password_hash(self.hashed_password, password)
 
-    def set_password(self, plaintext_password: str):
-        self.hashed_password = bcrypt.generate_password_hash(plaintext_password).decode(
-            "utf-8"
-        )
+    def set_password(self, password: str):
+        self.hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
     def __repr__(self):
         return f"<User: {self.email}, {self.username}, {self.role}>"

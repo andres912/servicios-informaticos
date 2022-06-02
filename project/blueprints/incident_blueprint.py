@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from project.controllers.incident_controller import IncidentController
+from project.controllers.user_controller import UserController
 from project.schemas.schemas import AlternativeIncidentSchema, IncidentSchema
 from project.helpers.incident_request_helper import IncidentRequestHelper
 
@@ -41,24 +42,13 @@ def get_incident(incident_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 404
 
-
-
-@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<user_id>", methods=["GET"])
-# @user_required([EDIT_DISTRIBUTOR])
-def get_user_incidents(user_id):
-    """
-    GET endpoint to get all Incidents from a specific user.
-    """
-    incidents = IncidentController.load_incidents_assigned_to_user(username=user_id)
-    return jsonify(incidents_schema.dump(incidents))
-
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/assigned", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
 def get_assigned_incidents():
     """
     GET endpoint to get all Incidents.
     """
-    incidents = IncidentController.load_assigned_incidents()
+    incidents = IncidentController.load_assigned()
     return jsonify(incidents_schema.dump(incidents))
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/not-assigned", methods=["GET"])
@@ -67,8 +57,30 @@ def get_unassigned_incidents():
     """
     GET endpoint to get all Incidents.
     """
-    incidents = IncidentController.load_unassigned_incidents()
+    incidents = IncidentController.load_unassigned()
     return jsonify(incidents_schema.dump(incidents))
+
+@incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/solved", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_solved_incidents():
+    """
+    GET endpoint to get all Incidents.
+    """
+    incidents = IncidentController.load_solved()
+    return jsonify(incidents_schema.dump(incidents))
+
+@incident_blueprint.route(f"/users/<user_id>{INCIDENTS_ENDPOINT}", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_user_incidents(user_id):
+    """
+    GET endpoint to get all Incidents.
+    """
+    try:
+        username = UserController.load_by_id(user_id).username
+        incidents = IncidentController.load_taken_by_user(username)
+        return jsonify(incidents_schema.dump(incidents))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
 
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["POST"])

@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 
 from project.models.base_model import BaseModel, NullBaseModel
 from project.models.exceptions import ObjectCreationException, ObjectNotFoundException
+from project.models.status import STATUS_SOLVED
 
 
 class InexistentBaseModelInstance(ValidationError):
@@ -142,6 +143,22 @@ class BaseController:
         Returns the number of non deleted Model objects in the database.
         """
         return cls.object_class.query.filter_by(is_deleted=False).count()
+
+    @classmethod
+    def load_solved(cls) -> None:
+        return cls.object_class.query.filter(cls.object_class.status == STATUS_SOLVED).all()
+
+    @classmethod
+    def load_assigned(cls) -> None:
+        return cls.object_class.query.filter(cls.object_class.taken_by != None).all()
+
+    @classmethod
+    def load_unassigned(cls) -> None:
+        return cls.object_class.query.filter(cls.object_class.taken_by == None).all()
+
+    @classmethod
+    def load_taken_by_user(cls, username: str) -> None:
+        return cls.object_class.query.filter(cls.object_class.taken_by == username).all()
 
 
 class InexistentBaseModelInstance(ValidationError):
