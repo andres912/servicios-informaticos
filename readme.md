@@ -16,6 +16,7 @@
  ```
 - (Librería no relacionada a Python): libpq-dev (sudo apt-get install libpq-dev) -> necesaria para instalar psycopg2
 - (Para ejecución local): crear en Postgresql una base de datos llamada "proy_inf" con pass "example"
+ 
    
 ### Preparación (ubuntu):
 ```sh
