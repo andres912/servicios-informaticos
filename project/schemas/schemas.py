@@ -111,7 +111,7 @@ class ProblemSchema(BaseModelSchema):
 
 
     incidents = fields.Nested(
-        "IncidentSchema", many=True, only={"description", "status", "priority"}
+        "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
     )
 
 

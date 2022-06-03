@@ -69,11 +69,6 @@ class ProblemController(BaseController):
         problem.incidents.append(incident)
 
     @classmethod
-    def create(cls, **kwargs) -> Problem:
-        modified_parameters = cls.add_incidents(**kwargs)
-        return super().create(**modified_parameters)
-
-    @classmethod
     def add_incidents(cls, **kwargs):
         incident_ids = kwargs.get("hardware_configuration_items", [])
         incidents = [

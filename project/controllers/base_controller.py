@@ -74,13 +74,10 @@ class BaseController:
         Receives an id of a Model object and queries for it.
         Returns the object if found else its Null object.
         """
-        # TODO: receive any parameter
         obj = cls.object_class.query.get(id)
-        if obj:
-            return obj
-        if cls.null_object_class is None:
-            raise ObjectNotFoundException(object=cls.object_class.__name__, id=id)
-        return cls.null_object_class(id=id) if cls.null_object_class else None
+        if not obj:
+            raise ObjectNotFoundException(cls.object_class.__name__, id)
+        return obj
 
     @classmethod
     def exists(cls, id: int) -> bool:
@@ -159,6 +156,14 @@ class BaseController:
     @classmethod
     def load_taken_by_user(cls, username: str) -> None:
         return cls.object_class.query.filter(cls.object_class.taken_by == username).all()
+
+    @classmethod
+    def load_by_name(cls, object_name: str) -> None:
+        return cls.object_class.query.filter(cls.object_class.name == object_name).first()
+
+    @classmethod
+    def load_by_description(cls, description: str) -> None:
+        return cls.object_class.query.filter(cls.object_class.description == description).first()
 
 
 class InexistentBaseModelInstance(ValidationError):

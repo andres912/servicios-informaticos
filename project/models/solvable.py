@@ -1,33 +1,45 @@
+from sqlalchemy import ForeignKey
 from project import db
 from project.models.base_model import BaseModel, NullBaseModel
 from project.models.exceptions import ObjectCreationException
 from project.models.priority import *
-from project.models.solvable import Solvable
 from project.models.status import *
 from project.models.association_tables.configuration_item_incident import HardwareConfigurationItemIncident
 from project.models.association_tables.configuration_item_incident import SoftwareConfigurationItemIncident
 from project.models.association_tables.configuration_item_incident import SLAConfigurationItemIncident
+from sqlalchemy.ext.declarative import declared_attr
 
 
-class Incident(Solvable):
-    __tablename__ = "incident"
-    hardware_configuration_items = db.relationship("HardwareConfigurationItem", secondary="hardware_ci_item_incident")
-    software_configuration_items = db.relationship("SoftwareConfigurationItem", secondary="software_ci_item_incident")
-    sla_configuration_items = db.relationship("SLAConfigurationItem", secondary="sla_ci_item_incident")
+class Solvable(BaseModel):
+    __abstract__ = True
+    description = db.Column(db.String(500))
+    priority = db.Column(db.String(20))
+    status = db.Column(db.String(20))
+    created_on = db.Column(db.DateTime, default=db.func.now())
+    updated_on = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    is_blocked = db.Column(db.Boolean, default=False)
+
+    @declared_attr
+    def created_by(cls):
+        return db.Column(db.Integer, ForeignKey("user.username"))
+
+    @declared_attr
+    def taken_by(cls):
+        return db.Column(db.Integer, ForeignKey("user.username"))
 
 
     def __init__(
         self,
-        hardware_configuration_items: list = [],
-        software_configuration_items: list = [],
-        sla_configuration_items: list = [],
-        **kwargs
+        description: str,
+        priority: str = PRIORITY_MEDIUM,
+        created_by: str = ""
     ):
-        super().__init__(**kwargs)
-        self.verify_items(hardware_configuration_items, software_configuration_items, sla_configuration_items)
-        self.hardware_configuration_items = hardware_configuration_items
-        self.software_configuration_items = software_configuration_items
-        self.sla_configuration_items = sla_configuration_items
+        self.description = description
+        self.priority = priority
+        self.created_by = created_by
+        self.status = STATUS_PENDING
+        self.taken_by = None
+        self.is_blocked = False
 
 
     def _update(self,
@@ -66,5 +78,5 @@ class Incident(Solvable):
         if not hardware_configuration_items and not software_configuration_items and not sla_configuration_items:
             raise ObjectCreationException(object="Incident", cause="No configuration items provided")
 
-class NullIncident(NullBaseModel, Incident):
+class NullSolvable(NullBaseModel, Solvable):
     __abstract__ = True
