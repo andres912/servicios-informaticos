@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from project.controllers.configuration_item_controller.hardware_ci_controller import (
     HardwareConfigurationItemController,
 )
-from project.helpers.request_validator import RequestValidator
+from project.helpers.request_helpers import RequestValidator, ErrorHandler
 from project.models.exceptions import (
     ExtraFieldsException,
     MissingFieldsException,
@@ -43,13 +43,19 @@ def create_item():
     Creates a new Hardware Configuration Item
     """
     try:
-        RequestValidator.verify_fields(request.json, POST_FIELDS)
-    except (MissingFieldsException, ExtraFieldsException) as e:
-        return jsonify({"errors": {e.cause: ",".join(e.invalid_fields)}}), 400
+        RequestValidator.verify_fields(request.json, POST_FIELDS, optional_fields={"item_family_id", "version"})
+        item = HardwareConfigurationItemController.create(**request.json)
+        return jsonify(item_schema.dump(item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
 
-    item = HardwareConfigurationItemController.create(**request.json)
+@hardware_ci_blueprint.route(f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>", methods=["GET"])
+def get_item(item_id):
+    """
+    Creates a new Hardware Configuration Item
+    """
+    item = HardwareConfigurationItemController.load_by_id(item_id)
     return jsonify(item_schema.dump(item))
-
 
 @hardware_ci_blueprint.route(f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>", methods=["PUT"])
 def update_item(item_id):

@@ -3,6 +3,7 @@ from marshmallow import pre_load, post_load, post_dump, pre_dump
 from marshmallow_sqlalchemy import fields
 from project import marshmallow
 from project.models.base_model import BaseModel
+from project.models.configuration_item.configuration_item import ConfigurationItem
 from project.models.configuration_item.hardware_configuration_item import (
     HardwareConfigurationItem,
 )
@@ -183,6 +184,13 @@ class ConfigurationItemSchema(BaseModelSchema):
         )
         include_relationships = True
         load_instance = True
+    versions = fields.fields.Method("get_versions")
+
+    def get_versions(self, obj: ConfigurationItem) -> list:
+        return [
+            {"id": version.id, "version": version.version, "name": version.name, "description": version.description}
+            for version in obj.get_versions() if version.id != obj.id
+        ]
 
 
 class HardwareConfigurationItemSchema(ConfigurationItemSchema):
@@ -193,6 +201,7 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
             "serial_number",
             "price",
             "purchase_date",
+            "versions"
         )
         model = HardwareConfigurationItem
         include_relationships = True

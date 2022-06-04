@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from project.controllers.configuration_item_controller.software_ci_controller import (
     SoftwareConfigurationItemController,
 )
-from project.helpers.request_validator import RequestValidator
+from project.helpers.request_helpers import RequestValidator
 from project.models.exceptions import (
     ExtraFieldsException,
     MissingFieldsException,
@@ -40,6 +40,15 @@ def create_item():
         return jsonify({"errors": {e.cause: ",".join(e.invalid_fields)}}), 400
 
     item = SoftwareConfigurationItemController.create(**request.json)
+    return jsonify(item_schema.dump(item))
+
+
+@software_ci_blueprint.route(f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>", methods=["GET"])
+def get_item(item_id):
+    """
+    Creates a new Hardware Configuration Item
+    """
+    item = SoftwareConfigurationItemController.load_by_id(item_id)
     return jsonify(item_schema.dump(item))
 
 

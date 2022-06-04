@@ -205,3 +205,12 @@ class OrderStatusNotValidException(Exception):
     def __init__(self, current_status: str, new_status: str, **kwargs):
         self.message = f"No se puede actualizar el pedido del estado {current_status} al estado {new_status}"
         self.kwargs = kwargs
+
+class InvalidItemVersionsException(Exception):
+    """Raised when there is an error with the update of an order status"""
+
+    def __init__(self, item_version: int, item_family_id: int = None, **kwargs):
+        if not item_family_id:
+            self.message = f"No se puede crear un ítem con versión {item_version} sin referencia a una familia"
+        self.message = f"No se puede crear un ítem con versión {item_version} para la familia {item_family_id}"
+        self.kwargs = kwargs

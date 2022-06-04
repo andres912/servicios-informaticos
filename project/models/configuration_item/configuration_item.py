@@ -48,6 +48,11 @@ class ConfigurationItem(BaseModel):
         if version:
             self.version = version
 
+    def get_versions(self):
+        if not self.item_family_id:
+            return []
+        return self.query.filter_by(item_family_id=self.item_family_id).all()
+
 
 class NullConfigurationItem(NullBaseModel, ConfigurationItem):
     __abstract__ = True
