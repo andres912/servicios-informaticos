@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from project.controllers.configuration_item_controller.sla_ci_controller import (
     SLAConfigurationItemController,
 )
-from project.helpers.request_validator import RequestValidator
+from project.helpers.request_helpers import RequestValidator
 from project.models.exceptions import (
     ExtraFieldsException,
     MissingFieldsException,

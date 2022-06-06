@@ -91,9 +91,7 @@ def login():
     curl --request POST 'localhost:5000/login' \
          --header 'Authorization: Basic YWxldmlzOjEyMzQ1Ng=='
     """
-    
     auth = request.authorization
-
     if not auth or not auth.username or not auth.password:
         return (
             jsonify({"error": "Invalid username or password"}),
@@ -101,7 +99,7 @@ def login():
             {"WWW-Authenticate": 'Basic realm="Login required!"'},
         )
     try:
-        user = UserController.load(username=auth.username, password=auth.password)
+        user = UserController.load(email=auth.username, password=auth.password)
         token = jwt.encode(
             {"id": user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=12)},
             current_app.config["SECRET_KEY"],
@@ -116,10 +114,13 @@ def login():
         {
             "token": token,
             "permissions": user.permissions,
+            "user": {
+            "id": user.id,
             "username": user.username,
             "role": {"id": user.role_id, "name": user.role.name},
             "email": user.email,
             "is_enabled": user.is_enabled,
             "is_deleted": user.is_deleted,
+            }
         }
     )

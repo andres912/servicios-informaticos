@@ -4,7 +4,9 @@ from project.models.status import *
 from project.models.user import User
 
 
-def test_incident_creation(init_database, saved_user, saved_hardware_configuration_item):
+def test_incident_creation(
+    init_database, saved_user, saved_hardware_configuration_item
+):
 
     PROBLEM_DESCRIPTION = "The server connection to the database is not working."
     PROBLEM_PRIORITY = PRIORITY_MEDIUM
@@ -29,7 +31,7 @@ def create_random_user(db, saved_role):
     user = User(
         username="test_user",
         email="mail@fi.uba.ar",
-        plaintext_password="test_password",
+        password="test_password",
         role=saved_role,
     )
 

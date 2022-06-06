@@ -11,7 +11,7 @@ from project.controllers.configuration_item_controller.software_ci_controller im
 from project.controllers.incident_controller import IncidentController
 from project.controllers.user_controller import UserController
 from project.models.association_tables.incident_problem import IncidentProblem
-from project.models.exceptions import BadQueryException, ObjectNotFoundException
+from project.models.exceptions import MissingFieldsException, ObjectNotFoundException
 from project.models.problem import Problem, NullProblem
 
 
@@ -29,13 +29,13 @@ class ProblemController(BaseController):
     @staticmethod
     def load_problems_created_by_user(username: str = "") -> None:
         if not username:
-            raise BadQueryException("Username is required.")
+            raise MissingFieldsException(missing_fields=["username"])
         return Problem.query.filter_by(created_by=username).all()
 
     @staticmethod
     def load_problems_assigned_to_user(username: str = "") -> None:
         if not username:
-            raise BadQueryException("Username is required.")
+            raise MissingFieldsException(missing_fields=["username"])
         return Problem.query.filter_by(taken_by=username).all()
 
     @staticmethod
@@ -67,11 +67,6 @@ class ProblemController(BaseController):
         if not problem:
             raise ObjectNotFoundException(object_name="Problem", object_id=problem_id)
         problem.incidents.append(incident)
-
-    @classmethod
-    def create(cls, **kwargs) -> Problem:
-        modified_parameters = cls.add_incidents(**kwargs)
-        return super().create(**modified_parameters)
 
     @classmethod
     def add_incidents(cls, **kwargs):

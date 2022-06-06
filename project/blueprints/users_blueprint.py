@@ -28,18 +28,10 @@ def register():
     lastname = request.json["lastname"] if "lastname" in request.json else None
 
     try:
-        new_user = UserController.create(
-            username=username,
-            email=email,
-            password=password,
-            role_id=role_id,
-            name=name,
-            lastname=lastname,
-        )
-        UserController.save(new_user)
-    except ValidationError as err:
-        return jsonify(err.messages), 422
-    return user_schema.dump(new_user)
+        new_user = UserController.create(**request.json)
+    except Exception as err:
+        return jsonify(err.message), 422
+    return user_schema.dump(new_user), 201
 
 
 @users_blueprint.route(USERS_ENDPOINT, methods=["GET"])

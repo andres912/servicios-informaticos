@@ -14,6 +14,7 @@ class ConfigurationItem(BaseModel):
     version = db.Column(db.SmallInteger, default=1, nullable=False)
     item_family_id = db.Column(db.Integer, nullable=True)
     item_class = db.Column(db.String(20), nullable=False)
+    is_current_version = db.Column(db.Boolean, default=True, nullable=False)
 
     def __init__(
         self,
@@ -21,7 +22,8 @@ class ConfigurationItem(BaseModel):
         description: str,
         item_class: str,
         item_family_id: int = None, # not the same as id, it's used to track changes and versions of the item
-        version: int = 1
+        version: int = 1,
+        is_current_version: bool = True,
     ):
         super().__init__()
         if item_family_id:
@@ -30,6 +32,7 @@ class ConfigurationItem(BaseModel):
         self.description = description
         self.version = version
         self.item_class = item_class
+        self.is_current_version = is_current_version
 
     def _update(
         self,
@@ -47,6 +50,11 @@ class ConfigurationItem(BaseModel):
             self.item_family_id = item_family_id
         if version:
             self.version = version
+
+    def get_versions(self):
+        if not self.item_family_id:
+            return []
+        return self.query.filter_by(item_family_id=self.item_family_id).all()
 
 
 class NullConfigurationItem(NullBaseModel, ConfigurationItem):
