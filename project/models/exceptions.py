@@ -214,3 +214,12 @@ class InvalidItemVersionsException(Exception):
             self.message = f"No se puede crear un ítem con versión {item_version} sin referencia a una familia"
         self.message = f"No se puede crear un ítem con versión {item_version} para la familia {item_family_id}"
         self.kwargs = kwargs
+
+class ItemVersionNotFoundException(Exception):
+    """Raised when an item version was not found"""
+
+    def __init__(self, item_family: int, version: int, **kwargs):
+        self.message = "No se encontró el ítem de la familia {} con la versión {}".format(
+            item_family, version
+        )
+        self.kwargs = kwargs

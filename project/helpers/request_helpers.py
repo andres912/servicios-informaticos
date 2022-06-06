@@ -6,6 +6,11 @@ from flask import jsonify
 from project.models.exceptions import DependencyMismatchException, ExtraFieldsException, IncorrectRoleException, InvalidItemVersionsException, LoginValidationException, MissingFieldsException, ObjectCreationException, ObjectNotFoundException, ObjectUpdateException, RepeatedUniqueFieldException
 
 class DateHelper:
+
+    @staticmethod
+    def format_date(date: datetime, date_format):
+        return date.strftime(date_format)
+
     @staticmethod
     def get_date_from_string(date_string):
         try:
@@ -86,5 +91,14 @@ class ErrorHandler:
             else "Internal server error"
         )
         return jsonify({"error": error_message}), http_response
+
+class RequestHelper:
+    @staticmethod
+    def correct_purchase_date(request_json):
+        if "purchase_date" in request_json:
+            purchase_date = DateHelper.get_date_from_string(request_json["purchase_date"])
+            new_format_date = DateHelper.format_date(purchase_date, "%Y-%m-%d")
+            request_json["purchase_date"] = new_format_date
+            return request_json
 
 
