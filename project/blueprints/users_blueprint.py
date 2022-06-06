@@ -30,7 +30,8 @@ def register():
     try:
         new_user = UserController.create(**request.json)
     except Exception as err:
-        return jsonify(err.message), 422
+        users_blueprint.logger.error(err)
+        return jsonify({"error": err}), 422
     return user_schema.dump(new_user), 201
 
 
