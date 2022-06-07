@@ -17,6 +17,7 @@ from project.models.enableable_object import EnableableObject
 from project.models.incident import Incident
 from project.models.role import Role
 from project.models.user import User
+from project.models.change import Change
 
 DATE_FORMAT = "%d/%m/%Y"
 
@@ -236,6 +237,20 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
         model = SLAConfigurationItem
         include_relationships = True
         load_instance = True
+
+class ChangeSchema(BaseModelSchema):
+    class Meta:
+        fields = BaseModelSchema.Meta.fields + (
+            "description",
+            "priority",
+            "status",
+            "created_by",
+            "taken_by"
+        )
+        model = Change
+        include_relationships = True
+        load_instance = True
+
 
     starting_date = fields.fields.DateTime(format=DATE_FORMAT)
     ending_date = fields.fields.DateTime(format=DATE_FORMAT)
