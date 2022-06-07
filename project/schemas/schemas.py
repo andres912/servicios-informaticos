@@ -238,6 +238,9 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
         include_relationships = True
         load_instance = True
 
+    starting_date = fields.fields.DateTime(format=DATE_FORMAT)
+    ending_date = fields.fields.DateTime(format=DATE_FORMAT)
+
 class ChangeSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
@@ -251,6 +254,3 @@ class ChangeSchema(BaseModelSchema):
         include_relationships = True
         load_instance = True
 
-
-    starting_date = fields.fields.DateTime(format=DATE_FORMAT)
-    ending_date = fields.fields.DateTime(format=DATE_FORMAT)
