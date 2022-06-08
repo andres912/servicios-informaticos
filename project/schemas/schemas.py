@@ -248,9 +248,19 @@ class ChangeSchema(BaseModelSchema):
             "priority",
             "status",
             "created_by",
-            "taken_by"
+            "taken_by",
+            "incidents",
+            "problems"
         )
         model = Change
         include_relationships = True
         load_instance = True
+
+    incidents = fields.Nested(
+        "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
+    )
+
+    problems = fields.Nested(
+        "ProblemSchema", many=True, only={"id", "description", "status", "priority"}
+    )
 

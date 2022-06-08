@@ -69,7 +69,7 @@ def create_change():
     """
     POST endpoint to create a new Change.
     """
-    correct_request = ChangeRequestHelper.create_incident_request(request.json)
+    correct_request = ChangeRequestHelper.create_change_request(request.json)
     change = ChangeController.create(**correct_request)
     return change_schema.dump(change)
 

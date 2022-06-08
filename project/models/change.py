@@ -8,8 +8,12 @@ from project.models.status import *
 
 class Change(Solvable):
     __tablename__ = "change"
+    incidents = db.relationship("Incident", secondary="incident_change")
+    problems = db.relationship("Problems", secondary="problem_change")
 
-    def __init__(self, **kwargs):
+    def __init__(self, incidents: list = [], problems: list = [], **kwargs):
+        self.incidents = incidents
+        self.problems = problems
         super().__init__(**kwargs)
 
     def _update(
@@ -39,6 +43,13 @@ class Change(Solvable):
 
     def assign_user(self, taken_by: str) -> None:
         self._update(self, taken_by=taken_by)
+    
+    def verify_problems_incidents(self, incidents: list, problems: list) -> None:
+        if not problems and not incidents:
+            raise ObjectCreationException(
+                object="Change", cause="Requires atleast 1 incident OR problem"
+            )
+
 
 
 class NullChange(NullBaseModel, Change):
