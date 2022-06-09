@@ -9,7 +9,7 @@ from project.models.status import *
 class Change(Solvable):
     __tablename__ = "change"
     incidents = db.relationship("Incident", secondary="incident_change")
-    problems = db.relationship("Problems", secondary="problem_change")
+    problems = db.relationship("Problem", secondary="problem_change")
 
     def __init__(self, incidents: list = [], problems: list = [], **kwargs):
         self.incidents = incidents
