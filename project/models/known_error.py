@@ -7,7 +7,7 @@ from project.models.status import *
 
 
 class KnownError(Solvable):
-    __tablename__ = "know_error"
+    __tablename__ = "known_error"
     #incidents = db.relationship("Incident", secondary="incident_known_error") #! not working
 
     def __init__(self, incidents: list = [], **kwargs):
