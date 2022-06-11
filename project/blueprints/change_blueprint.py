@@ -39,7 +39,7 @@ def get_user_changes(user_id):
     """
     GET endpoint to get all Changes from a specific user.
     """
-    changes = ChangeController.load_changes_assigned_to_user(username=user_id)
+    changes = ChangeController.load_assigned_to_user(username=user_id)
     return jsonify(changes_schema.dump(changes))
 
 
@@ -49,7 +49,7 @@ def get_assigned_changes():
     """
     GET endpoint to get all Changes.
     """
-    changes = ChangeController.load_assigned_changes()
+    changes = ChangeController.load_assigned()
     return jsonify(changes_schema.dump(changes))
 
 
@@ -59,7 +59,7 @@ def get_unassigned_changes():
     """
     GET endpoint to get all Changes.
     """
-    changes = ChangeController.load_unassigned_changes()
+    changes = ChangeController.load_unassigned()
     return jsonify(changes_schema.dump(changes))
 
 

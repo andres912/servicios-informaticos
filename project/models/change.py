@@ -4,12 +4,16 @@ from project.models.exceptions import ObjectCreationException
 from project.models.priority import *
 from project.models.solvable import Solvable
 from project.models.status import *
+from project.models.comment import ChangeComment
+from project.models.incident import Incident
+from project.models.problem import Problem
 
 
 class Change(Solvable):
     __tablename__ = "change"
     incidents = db.relationship("Incident", secondary="incident_change")
     problems = db.relationship("Problem", secondary="problem_change")
+    comments = db.relationship("ChangeComment", backref="change", lazy="dynamic")
 
     def __init__(self, incidents: list = [], problems: list = [], **kwargs):
         self.incidents = incidents

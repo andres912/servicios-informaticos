@@ -55,10 +55,10 @@ def test_getting_incidentes_created_by_specific_user(
     IncidentController.create(**first_incident_arguments)
     IncidentController.create(**second_incident_arguments)
 
-    first_user_incidents = IncidentController.load_incidents_created_by_user(
+    first_user_incidents = IncidentController.load_created_by_user(
         saved_user.username
     )
-    second_user_incidents = IncidentController.load_incidents_created_by_user(
+    second_user_incidents = IncidentController.load_created_by_user(
         saved_alternative_user.username
     )
 
@@ -99,10 +99,10 @@ def test_getting_incidentes_taken_by_specific_user(
         second_incident.id, saved_alternative_user.username
     )
 
-    first_user_incidents = IncidentController.load_incidents_assigned_to_user(
+    first_user_incidents = IncidentController.load_assigned_to_user(
         saved_user.username
     )
-    second_user_incidents = IncidentController.load_incidents_assigned_to_user(
+    second_user_incidents = IncidentController.load_assigned_to_user(
         saved_alternative_user.username
     )
 

@@ -15,12 +15,14 @@ from project.models.configuration_item.software_configuration_item import (
 )
 from project.models.enableable_object import EnableableObject
 from project.models.incident import Incident
+from project.models.problem import Problem
 from project.models.role import Role
 from project.models.user import User
 from project.models.change import Change
 from project.models.known_error import KnownError
 
 DATE_FORMAT = "%d/%m/%Y"
+DATETIME_FORMAT = "%d/%m/%Y %H:%M"
 
 
 class BaseModelSchema(marshmallow.SQLAlchemyAutoSchema):
@@ -34,7 +36,7 @@ class BaseModelSchema(marshmallow.SQLAlchemyAutoSchema):
     updated_at = fields.fields.DateTime(format=DATE_FORMAT)
 
 
-class IncidentSchema(BaseModelSchema):
+class SolvableSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
             "description",
@@ -42,11 +44,20 @@ class IncidentSchema(BaseModelSchema):
             "status",
             "created_by",
             "taken_by",
+            "is_blocked",
+            "comments"
+        )
+        include_relationships = True
+        load_instance = True
+
+    comments = fields.Nested("CommentSchema", many=True)
+
+class IncidentSchema(SolvableSchema):
+    class Meta:
+        fields = SolvableSchema.Meta.fields + (
             "hardware_configuration_items",
             "software_configuration_items",
-            "sla_configuration_items",
-
-            "is_blocked"
+            "sla_configuration_items"
         )
         model = Incident
         include_relationships = True
@@ -68,16 +79,10 @@ class IncidentSchema(BaseModelSchema):
         only={"name", "description", "service_type"},
     )
 
-class AlternativeIncidentSchema(BaseModelSchema):
+class AlternativeIncidentSchema(SolvableSchema):
     class Meta:
-        fields = BaseModelSchema.Meta.fields + (
-            "description",
-            "priority",
-            "status",
-            "created_by",
-            "taken_by",
+        fields = SolvableSchema.Meta.fields + (
             "configuration_items",
-            "is_blocked"
         )
         model = Incident
         include_relationships = True
@@ -94,29 +99,20 @@ class AlternativeIncidentSchema(BaseModelSchema):
         ]
 
 
-
-class ProblemSchema(BaseModelSchema):
+class ProblemSchema(SolvableSchema):
     class Meta:
-        fields = BaseModelSchema.Meta.fields + (
-            "description",
-            "priority",
-            "status",
-            "created_by",
-            "taken_by",
-            "impact",
-            "cause",
-            "solution",
+        fields = SolvableSchema.Meta.fields + (
             "incidents",
+            "impact",
+            "cause"
         )
-        model = Incident
+        model = Problem
         include_relationships = True
         load_instance = True
-
 
     incidents = fields.Nested(
         "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
     )
-
 
 
 class RoleSchema(BaseModelSchema):
@@ -217,6 +213,7 @@ class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
             "type",
             "provider",
             "software_version",
+            "versions"
         )
         model = SoftwareConfigurationItem
         include_relationships = True
@@ -234,6 +231,7 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
             "measurement_unit",
             "measurement_value",
             "is_crucial",
+            "versions"
         )
         model = SLAConfigurationItem
         include_relationships = True
@@ -283,3 +281,12 @@ class KnownErrorSchema(BaseModelSchema):
         "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
     )
 
+class CommentSchema(BaseModelSchema):
+    class Meta:
+        fields = (
+            "created_at",
+            "created_by",
+            "text"
+        )
+
+    created_at = fields.fields.DateTime(format=DATETIME_FORMAT)

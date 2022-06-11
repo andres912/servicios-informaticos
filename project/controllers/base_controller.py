@@ -141,30 +141,6 @@ class BaseController:
         """
         return cls.object_class.query.filter_by(is_deleted=False).count()
 
-    @classmethod
-    def load_solved(cls) -> None:
-        return cls.object_class.query.filter(cls.object_class.status == STATUS_SOLVED).all()
-
-    @classmethod
-    def load_assigned(cls) -> None:
-        return cls.object_class.query.filter(cls.object_class.taken_by != None).all()
-
-    @classmethod
-    def load_unassigned(cls) -> None:
-        return cls.object_class.query.filter(cls.object_class.taken_by == None).all()
-
-    @classmethod
-    def load_taken_by_user(cls, username: str) -> None:
-        return cls.object_class.query.filter(cls.object_class.taken_by == username).all()
-
-    @classmethod
-    def load_by_name(cls, object_name: str) -> None:
-        return cls.object_class.query.filter(cls.object_class.name == object_name).first()
-
-    @classmethod
-    def load_by_description(cls, description: str) -> None:
-        return cls.object_class.query.filter(cls.object_class.description == description).first()
-
 
 class InexistentBaseModelInstance(ValidationError):
     def __init__(self, obj_name: str, parameter: str, value: Any):

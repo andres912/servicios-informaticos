@@ -1,5 +1,6 @@
 from sqlalchemy import ForeignKey
 from project import db
+from project.db_types.list_type import MutableList
 from project.models.base_model import BaseModel, NullBaseModel
 from project.models.exceptions import ObjectCreationException
 from project.models.priority import *
@@ -77,6 +78,12 @@ class Solvable(BaseModel):
     def verify_items(self, hardware_configuration_items: list, software_configuration_items: list, sla_configuration_items: list) -> None:
         if not hardware_configuration_items and not software_configuration_items and not sla_configuration_items:
             raise ObjectCreationException(object="Incident", cause="No configuration items provided")
+
+    def add_comment(self, comment: str) -> None:
+        if self.comments == None:
+            self.comments = [comment]
+        else:
+            self.comments.append(comment)
 
 class NullSolvable(NullBaseModel, Solvable):
     __abstract__ = True

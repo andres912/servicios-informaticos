@@ -16,7 +16,9 @@ def register_tables():
     from project.models.association_tables.configuration_item_incident import HardwareConfigurationItemIncident
     from project.models.association_tables.configuration_item_incident import SoftwareConfigurationItemIncident
     from project.models.association_tables.configuration_item_incident import SLAConfigurationItemIncident
-    
+    from project.models.association_tables.incident_problem import IncidentProblem
+    from project.models.association_tables.problem_change import ProblemChange
+    from project.models.association_tables.incident_change import IncidentChange
     pass
 
 def register_blueprints(app):
