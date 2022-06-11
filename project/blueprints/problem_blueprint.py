@@ -95,3 +95,13 @@ def delete_all():
     problems_amount = ProblemController.count()
     ProblemController.delete_all()
     return f"{problems_amount} problems have been deleted"
+
+@problem_blueprint.route(f"{PROBLEMS_ENDPOINT}/names", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_incidents_names():
+    """
+    GET endpoint to get incidents names
+    """
+    problems = ProblemController.load_all()
+    response = {"incidents": [{"name": problem.description, "value": problem.description} for problem in problems]}
+    return jsonify(response)
