@@ -18,6 +18,7 @@ from project.models.incident import Incident
 from project.models.role import Role
 from project.models.user import User
 from project.models.change import Change
+from project.models.known_error import KnownError
 
 DATE_FORMAT = "%d/%m/%Y"
 
@@ -262,5 +263,23 @@ class ChangeSchema(BaseModelSchema):
 
     problems = fields.Nested(
         "ProblemSchema", many=True, only={"id", "description", "status", "priority"}
+    )
+
+class KnownErrorSchema(BaseModelSchema):
+    class Meta:
+        fields = BaseModelSchema.Meta.fields + (
+            "description",
+            "status",
+            "created_by",
+            "solution",
+            "taken_by",
+            "incidents"
+        )
+        model = KnownError
+        include_relationships = True
+        load_instance = True
+
+    incidents = fields.Nested(
+        "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
     )
 
