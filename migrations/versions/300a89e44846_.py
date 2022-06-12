@@ -1,8 +1,8 @@
-""" adds IncidentComment, ProblemComment, ChangeComment to the database
+"""add commentChange, commentProblem and commentIncident
 
-Revision ID: 7ef856a3b9b4
-Revises: 7a431981826e
-Create Date: 2022-06-10 19:26:34.956627
+Revision ID: 300a89e44846
+Revises: c63103106c73
+Create Date: 2022-06-12 17:09:02.621335
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7ef856a3b9b4'
-down_revision = '7a431981826e'
+revision = '300a89e44846'
+down_revision = 'c63103106c73'
 branch_labels = None
 depends_on = None
 
