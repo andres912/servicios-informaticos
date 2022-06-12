@@ -4,11 +4,12 @@ from project.models.exceptions import ObjectCreationException
 from project.models.priority import *
 from project.models.solvable import Solvable
 from project.models.status import *
+from project.models.association_tables.incident_known_error import IncidentKnownError
 
 
 class KnownError(Solvable):
     __tablename__ = "known_error"
-    #incidents = db.relationship("Incident", secondary="incident_known_error") #! not working
+    incidents = db.relationship("Incident", secondary="incident_known_error")
 
     def __init__(self, incidents: list = [], **kwargs):
         self.incidents = incidents
