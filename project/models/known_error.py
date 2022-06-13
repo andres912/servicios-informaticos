@@ -10,9 +10,11 @@ from project.models.association_tables.incident_known_error import IncidentKnown
 class KnownError(Solvable):
     __tablename__ = "known_error"
     incidents = db.relationship("Incident", secondary="incident_known_error")
+    solution = db.Column(db.String(1000))
 
-    def __init__(self, incidents: list = [], **kwargs):
+    def __init__(self, incidents: list = [], solution: str = "", **kwargs):
         self.incidents = incidents
+        self.solution = solution
         super().__init__(**kwargs)
 
     def _update(
