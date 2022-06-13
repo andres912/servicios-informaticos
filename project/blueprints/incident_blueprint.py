@@ -43,6 +43,7 @@ def get_assigned_incidents():
     incidents = IncidentController.load_assigned()
     return jsonify(incidents_schema.dump(incidents))
 
+
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/not-assigned", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
 def get_unassigned_incidents():
@@ -118,7 +119,7 @@ def update_incident(incident_id):
     POST endpoint to create a new Incident.
     """
     incident = IncidentController.update(id=incident_id, **request.json)
-    return incident_schema.dump(incident)
+    return jsonify(incident_schema.dump(incident))
 
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/names", methods=["GET"])
@@ -128,5 +129,26 @@ def get_incidents_names():
     GET endpoint to get incidents names
     """
     incidents = IncidentController.load_all()
-    response = {"incidents": [{"name": incident.description, "value": incident.description} for incident in incidents]}
+    response = {
+        "incidents": [
+            {"name": incident.description, "value": incident.description}
+            for incident in incidents
+        ]
+    }
     return jsonify(response)
+
+
+@incident_blueprint.route(
+    f"{INCIDENTS_ENDPOINT}/<incident_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_incident(incident_id):
+    """
+    GET endpoint to get incidents names
+    """
+    comment = request.json["comment"]
+    created_by = request.json["created_by"]
+    IncidentController.add_comment_to_solvable(
+        solvable_id=incident_id, comment_message=comment, created_by=created_by
+    )
+    return jsonify({"message": "Comment added"})

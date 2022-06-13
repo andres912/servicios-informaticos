@@ -30,8 +30,7 @@ def register():
     try:
         new_user = UserController.create(**request.json)
     except Exception as err:
-        print(err)
-        return jsonify({"error": err}), 422
+        return jsonify(err.message), 422
     return user_schema.dump(new_user), 201
 
 

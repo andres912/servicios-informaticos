@@ -38,7 +38,7 @@ def get_user_problems(user_id):
     """
     GET endpoint to get all Problems from a specific user.
     """
-    problems = ProblemController.load_problems_assigned_to_user(username=user_id)
+    problems = ProblemController.load_assigned_to_user(username=user_id)
     return jsonify(problems_schema.dump(problems))
 
 
@@ -48,7 +48,7 @@ def get_assigned_problems():
     """
     GET endpoint to get all Problems.
     """
-    problems = ProblemController.load_assigned_problems()
+    problems = ProblemController.load_assigned()
     return jsonify(problems_schema.dump(problems))
 
 
@@ -58,9 +58,18 @@ def get_unassigned_problems():
     """
     GET endpoint to get all Problems.
     """
-    problems = ProblemController.load_unassigned_problems()
+    problems = ProblemController.load_unassigned()
     return jsonify(problems_schema.dump(problems))
 
+
+@problem_blueprint.route(f"{PROBLEMS_ENDPOINT}/solved", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_solved_incidents():
+    """
+    GET endpoint to get all Incidents.
+    """
+    incidents = ProblemController.load_solved()
+    return jsonify(problems_schema.dump(incidents))
 
 @problem_blueprint.route(f"{PROBLEMS_ENDPOINT}", methods=["POST"])
 # @user_required([EDIT_DISTRIBUTOR])
@@ -86,6 +95,16 @@ def delete_problem(problem_id):
         return jsonify({"error": str(e)}), 404
 
 
+@problem_blueprint.route(f"{PROBLEMS_ENDPOINT}/<problem_id>", methods=["PATCH"])
+# @user_required([EDIT_DISTRIBUTOR])
+def update_incident(problem_id):
+    """
+    POST endpoint to create a new Incident.
+    """
+    problem = ProblemController.update(id=problem_id, **request.json)
+    return jsonify(problem_schema.dump(problem))
+
+
 @problem_blueprint.route(f"{PROBLEMS_ENDPOINT}/all", methods=["DELETE"])
 # @user_required([EDIT_DISTRIBUTOR])
 def delete_all():
@@ -95,3 +114,28 @@ def delete_all():
     problems_amount = ProblemController.count()
     ProblemController.delete_all()
     return f"{problems_amount} problems have been deleted"
+
+@problem_blueprint.route(f"{PROBLEMS_ENDPOINT}/names", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_problem_names():
+    """
+    GET endpoint to get incidents names
+    """
+    problems = ProblemController.load_all()
+    response = {"problems": [{"name": problem.description, "value": problem.description} for problem in problems]}
+    return jsonify(response)
+
+@problem_blueprint.route(
+    f"{PROBLEMS_ENDPOINT}/<problem_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_incident(problem_id):
+    """
+    GET endpoint to get incidents names
+    """
+    comment = request.json["comment"]
+    created_by = request.json["created_by"]
+    ProblemController.add_comment_to_solvable(
+        solvable_id=problem_id, comment_message=comment, created_by=created_by
+    )
+    return jsonify({"message": "Comment added"})

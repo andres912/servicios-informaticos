@@ -4,7 +4,8 @@ from project.models.exceptions import ObjectCreationException
 from project.models.priority import *
 from project.models.solvable import Solvable
 from project.models.status import *
-
+from project.models.comment import ProblemComment
+from project.models.association_tables.incident_problem import IncidentProblem
 
 class Problem(Solvable):
     __tablename__ = "problem"
@@ -12,6 +13,7 @@ class Problem(Solvable):
     impact = db.Column(db.String(20))
     cause = db.Column(db.String(1000))
     solution = db.Column(db.String(1000))
+    comments = db.relationship("ProblemComment", backref="problem", lazy="dynamic")
 
     def __init__(
         self,
@@ -30,25 +32,13 @@ class Problem(Solvable):
 
     def _update(
         self,
-        title: str = None,
-        description: str = None,
-        priority: str = None,
-        status: str = None,
-        taken_by: str = None,
         impact: str = None,
         cause: str = None,
         solution: str = None,
+        **kwargs
     ) -> None:
-        if title:
-            self.title = title
-        if description:
-            self.description = description
-        if priority:
-            self.priority = priority
-        if status:
-            self.status = status
-        if taken_by:
-            self.taken_by = taken_by
+        
+        super()._update(**kwargs)
         if impact:
             self.impact = impact
         if cause:

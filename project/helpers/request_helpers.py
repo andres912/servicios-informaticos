@@ -94,11 +94,12 @@ class ErrorHandler:
 
 class RequestHelper:
     @staticmethod
-    def correct_purchase_date(request_json):
-        if "purchase_date" in request_json:
-            purchase_date = DateHelper.get_date_from_string(request_json["purchase_date"])
-            new_format_date = DateHelper.format_date(purchase_date, "%Y-%m-%d")
-            request_json["purchase_date"] = new_format_date
-            return request_json
+    def correct_dates(request_json):
+        for key in request_json.keys():
+            if "_date" in key:
+                date_to_fix = DateHelper.get_date_from_string(request_json[key])
+                new_date = DateHelper.format_date(date_to_fix, "%Y-%m-%d")
+                request_json[key] = new_date
+        return request_json
 
 

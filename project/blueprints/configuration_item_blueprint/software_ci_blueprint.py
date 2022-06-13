@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from project.controllers.configuration_item_controller.software_ci_controller import (
     SoftwareConfigurationItemController,
 )
-from project.helpers.request_helpers import RequestValidator
+from project.helpers.request_helpers import ErrorHandler, RequestHelper, RequestValidator
 from project.models.exceptions import (
     ExtraFieldsException,
     MissingFieldsException,
@@ -46,7 +46,7 @@ def create_item():
 @software_ci_blueprint.route(f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>", methods=["GET"])
 def get_item(item_id):
     """
-    Creates a new Hardware Configuration Item
+    Creates a new Software Configuration Item
     """
     item = SoftwareConfigurationItemController.load_by_id(item_id)
     return jsonify(item_schema.dump(item))
@@ -100,3 +100,27 @@ def delete_item(item_id):
             404,
         )
     return jsonify(item_schema.dump(item))
+
+@software_ci_blueprint.route(f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/restore", methods=["POST"])
+def restore_item_version(item_id):
+    """
+    Creates a new Software Configuration Item
+    """
+    try:
+        version = request.json.get("version")
+        item = SoftwareConfigurationItemController.restore_item_version(item_id, version)
+        return jsonify(item_schema.dump(item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+@software_ci_blueprint.route(f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/version", methods=["POST"])
+def create_item_version(item_id):
+    """
+    Creates a new Software Configuration Item
+    """
+    try:
+        correct_request = RequestHelper.correct_purchase_date(request.json)
+        new_item = SoftwareConfigurationItemController.create_new_item_version(item_id, **correct_request)
+        return jsonify(item_schema.dump(new_item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)

@@ -16,11 +16,15 @@ def register_tables():
     from project.models.association_tables.configuration_item_incident import HardwareConfigurationItemIncident
     from project.models.association_tables.configuration_item_incident import SoftwareConfigurationItemIncident
     from project.models.association_tables.configuration_item_incident import SLAConfigurationItemIncident
-    
+    from project.models.association_tables.incident_problem import IncidentProblem
+    from project.models.association_tables.problem_change import ProblemChange
+    from project.models.association_tables.incident_change import IncidentChange
+    from project.models.association_tables.incident_known_error import IncidentKnownError
     pass
 
 def register_blueprints(app):
     from project.blueprints.change_blueprint import change_blueprint
+    from project.blueprints.known_error_blueprint import known_error_blueprint
     from project.blueprints.incident_blueprint import incident_blueprint
     from project.blueprints.problem_blueprint import problem_blueprint
     from project.blueprints.health_blueprint import health_blueprint
@@ -34,6 +38,7 @@ def register_blueprints(app):
 
 
     app.register_blueprint(change_blueprint)
+    app.register_blueprint(known_error_blueprint)
     app.register_blueprint(incident_blueprint)
     app.register_blueprint(problem_blueprint)
     app.register_blueprint(health_blueprint)
