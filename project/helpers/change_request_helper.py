@@ -1,6 +1,17 @@
 from project.controllers.incident_controller import IncidentController
 from project.controllers.problem_controller import ProblemController
 from project.models.exceptions import ObjectNotFoundException
+
+from project.controllers.configuration_item_controller.hardware_ci_controller import (
+    HardwareConfigurationItemController,
+)
+from project.controllers.configuration_item_controller.sla_ci_controller import (
+    SLAConfigurationItemController,
+)
+from project.controllers.configuration_item_controller.software_ci_controller import (
+    SoftwareConfigurationItemController,
+)
+
 class ChangeRequestHelper:
     @classmethod
     def get_incidents(cls, incident_names):

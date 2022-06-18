@@ -8,17 +8,69 @@ from project.models.comment import ChangeComment
 from project.models.incident import Incident
 from project.models.problem import Problem
 
+from project.models.association_tables.configuration_item_change import (
+    HardwareConfigurationItemChange,
+)
+from project.models.association_tables.configuration_item_change import (
+    SoftwareConfigurationItemChange,
+)
+from project.models.association_tables.configuration_item_change import (
+    SLAConfigurationItemChange,
+)
 
 class Change(Solvable):
     __tablename__ = "change"
     incidents = db.relationship("Incident", secondary="incident_change")
     problems = db.relationship("Problem", secondary="problem_change")
+
+    hardware_configuration_items = db.relationship(
+        "HardwareConfigurationItem", secondary="hardware_ci_item_change"
+    )
+    software_configuration_items = db.relationship(
+        "SoftwareConfigurationItem", secondary="software_ci_item_change"
+    )
+    sla_configuration_items = db.relationship(
+        "SLAConfigurationItem", secondary="sla_ci_item_change"
+    )
+
     comments = db.relationship("ChangeComment", backref="change", lazy="dynamic")
 
-    def __init__(self, incidents: list = [], problems: list = [], **kwargs):
+    def __init__(
+        self,
+        incidents: list = [],
+        problems: list = [],
+        hardware_configuration_items: list = [],
+        software_configuration_items: list = [],
+        sla_configuration_items: list = [],
+        **kwargs
+    ):
         self.incidents = incidents
         self.problems = problems
         super().__init__(**kwargs)
+        self.verify_items(
+            hardware_configuration_items,
+            software_configuration_items,
+            sla_configuration_items,
+        )
+        self.hardware_configuration_items = hardware_configuration_items
+        self.software_configuration_items = software_configuration_items
+        self.sla_configuration_items = sla_configuration_items
+
+    def verify_items(
+        self,
+        hardware_configuration_items: list,
+        software_configuration_items: list,
+        sla_configuration_items: list,
+    ) -> None:
+        if (
+            not hardware_configuration_items
+            and not software_configuration_items
+            and not sla_configuration_items
+        ):
+            raise ObjectCreationException(
+                object="Incident", cause="No configuration items provided"
+            )
+
 
     def _update(
         self,
