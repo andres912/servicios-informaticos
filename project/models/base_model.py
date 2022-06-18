@@ -25,7 +25,7 @@ class BaseModel(db.Model):
         """
         Updates object with deletion status.
         """
-        self.update(is_deleted=True)
+        self.is_deleted = True
 
     def undelete(self) -> None:
         """

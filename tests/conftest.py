@@ -2,6 +2,9 @@ from datetime import datetime
 import os
 from project import create_app, db
 import pytest
+from project.controllers.configuration_item_controller.hardware_ci_controller import HardwareConfigurationItemController
+from project.controllers.configuration_item_controller.sla_ci_controller import SLAConfigurationItemController
+from project.controllers.configuration_item_controller.software_ci_controller import SoftwareConfigurationItemController
 from project.models.configuration_item.hardware_configuration_item import (
     HardwareConfigurationItem,
 )
@@ -94,24 +97,22 @@ def saved_incident(saved_user, saved_hardware_configuration_item):
 
 @pytest.fixture(scope="function")
 def saved_hardware_configuration_item():
-    item = HardwareConfigurationItem(
+    item = HardwareConfigurationItemController.create(
         name="Generic CI",
         description="Generic description",
         type="Generic type",
         manufacturer="Generic manufacturer",
         serial_number="XXXX-XXXX",
         price=100,
-        purchase_date=datetime.now(),
+        purchase_date=datetime.now()
     )
 
-    db.session.add(item)
-    db.session.commit()
     return item
 
 
 @pytest.fixture(scope="function")
 def saved_sla_configuration_item():
-    item = SLAConfigurationItem(
+    item = SLAConfigurationItemController.create(
         name="Generic CI",
         description="Generic description",
         service_type="Generic type",
@@ -123,14 +124,12 @@ def saved_sla_configuration_item():
         measurement_value=100,
     )
 
-    db.session.add(item)
-    db.session.commit()
     return item
 
 
 @pytest.fixture(scope="function")
 def saved_software_configuration_item():
-    item = SoftwareConfigurationItem(
+    item = SoftwareConfigurationItemController.create(
         name="Generic CI",
         description="Generic description",
         type="Generic type",
@@ -138,6 +137,4 @@ def saved_software_configuration_item():
         software_version="10.0.0",
     )
 
-    db.session.add(item)
-    db.session.commit()
     return item

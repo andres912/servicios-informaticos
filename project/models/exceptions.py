@@ -126,7 +126,7 @@ class ObjectCreationException(Exception):
 class ObjectNotFoundException(Exception):
     """Raised when an object was not found"""
 
-    def __init__(self, object: str, object_id, **kwargs):
+    def __init__(self, object: str = "", object_id = None, **kwargs):
         self.message = "No se encontró el objeto {} con identificador {}".format(
             object, object_id
         )

@@ -87,7 +87,6 @@ def create_incident():
     """
     POST endpoint to create a new Incident.
     """
-
     correct_request = IncidentRequestHelper.create_incident_request(request.json)
     incident = IncidentController.create(**correct_request)
     return incident_schema.dump(incident)

@@ -230,12 +230,9 @@ def test_retreiving_incident_configuration_items(
     init_database, saved_hardware_configuration_item, saved_incident
 ):
 
-    configuration_item_incidents = saved_hardware_configuration_item.incidents
     incident_hardware_configuration_items = saved_incident.hardware_configuration_items
 
-    assert len(configuration_item_incidents) == 1
     assert len(incident_hardware_configuration_items) == 1
-    assert configuration_item_incidents[0].id == saved_incident.id
     assert (
         incident_hardware_configuration_items[0].id
         == saved_hardware_configuration_item.id

@@ -1,4 +1,5 @@
 from numpy import save
+from project.controllers.configuration_item_controller.configuration_item_controller import ConfigurationItemController
 from project.controllers.configuration_item_controller.hardware_ci_controller import HardwareConfigurationItemController
 from project.models.priority import *
 from project.models.status import *
@@ -113,10 +114,10 @@ def test_hardware_ci_get_all(
 
     assert response.status_code == 200
     assert len(response.json) == 1
-    assert response.json[0]["id"] == saved_hardware_configuration_item.id
-    assert response.json[0]["name"] == saved_hardware_configuration_item.name
-    assert response.json[0]["description"] == saved_hardware_configuration_item.description
-    assert response.json[0]["type"] == saved_hardware_configuration_item.type
-    assert response.json[0]["manufacturer"] == saved_hardware_configuration_item.manufacturer
-    assert response.json[0]["serial_number"] == saved_hardware_configuration_item.serial_number
-    assert response.json[0]["price"] == saved_hardware_configuration_item.price
+    assert response.json[0]["id"] == saved_hardware_configuration_item.current_version.id
+    assert response.json[0]["name"] == saved_hardware_configuration_item.current_version.name
+    assert response.json[0]["description"] == saved_hardware_configuration_item.current_version.description
+    assert response.json[0]["type"] == saved_hardware_configuration_item.current_version.type
+    assert response.json[0]["manufacturer"] == saved_hardware_configuration_item.current_version.manufacturer
+    assert response.json[0]["serial_number"] == saved_hardware_configuration_item.current_version.serial_number
+    assert response.json[0]["price"] == saved_hardware_configuration_item.current_version.price

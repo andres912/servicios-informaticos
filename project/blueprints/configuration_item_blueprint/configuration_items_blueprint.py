@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 from project.controllers.configuration_item_controller.hardware_ci_controller import HardwareConfigurationItemController
 from project.controllers.configuration_item_controller.software_ci_controller import SoftwareConfigurationItemController
 from project.controllers.configuration_item_controller.sla_ci_controller import SLAConfigurationItemController
-from project.schemas.schemas import ConfigurationItemSchema
+from project.schemas.schemas import ReducedConfigurationItemSchema
 
 
 CONFIGURATION_ITEMS_ENDPOINT = "/configuration-items"
@@ -10,7 +10,7 @@ CONFIGURATION_ITEMS_ENDPOINT = "/configuration-items"
 ci_blueprint = Blueprint("ci_blueprint", __name__)
 
 # item_schema = ConfigurationItemSchema(only=["name", "id", "item_class"])
-items_schema = ConfigurationItemSchema(many=True, only=["name", "id", "item_class"])
+items_schema = ReducedConfigurationItemSchema(many=True)
 
 @ci_blueprint.route(f"{CONFIGURATION_ITEMS_ENDPOINT}/names", methods=["GET"])
 def get_configuration_items():

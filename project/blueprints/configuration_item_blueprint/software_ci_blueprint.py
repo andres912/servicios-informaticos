@@ -15,7 +15,7 @@ SOFTWARE_CI_ITEMS_ENDPOINT = "/configuration-items/software"
 software_ci_blueprint = Blueprint("software_ci_blueprint", __name__)
 
 item_schema = SoftwareConfigurationItemSchema()
-items_schema = SoftwareConfigurationItemSchema(many=True)
+items_schema = SoftwareConfigurationItemSchema(many=True, exclude=["versions"])
 
 POST_FIELDS = {"name", "description", "type", "provider", "software_version"}
 
@@ -119,7 +119,7 @@ def create_item_version(item_id):
     Creates a new Software Configuration Item
     """
     try:
-        correct_request = RequestHelper.correct_purchase_date(request.json)
+        correct_request = RequestHelper.correct_dates(request.json)
         new_item = SoftwareConfigurationItemController.create_new_item_version(item_id, **correct_request)
         return jsonify(item_schema.dump(new_item))
     except Exception as e:

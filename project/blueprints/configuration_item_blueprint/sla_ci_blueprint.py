@@ -15,7 +15,7 @@ SLA_CI_ITEMS_ENDPOINT = "/configuration-items/sla"
 sla_ci_blueprint = Blueprint("sla_ci_blueprint", __name__)
 
 item_schema = SLAConfigurationItemSchema()
-items_schema = SLAConfigurationItemSchema(many=True)
+items_schema = SLAConfigurationItemSchema(many=True, exclude=["versions"])
 
 POST_FIELDS = {
     "name",

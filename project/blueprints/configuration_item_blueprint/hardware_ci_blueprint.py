@@ -15,7 +15,7 @@ HARDWARE_CI_ITEMS_ENDPOINT = "/configuration-items/hardware"
 hardware_ci_blueprint = Blueprint("hardware_ci_blueprint", __name__)
 
 item_schema = HardwareConfigurationItemSchema()
-items_schema = HardwareConfigurationItemSchema(many=True)
+items_schema = HardwareConfigurationItemSchema(many=True, exclude=["versions"])
 
 POST_FIELDS = {
     "name",
@@ -125,7 +125,7 @@ def create_item_version(item_id):
     Creates a new Hardware Configuration Item
     """
     try:
-        correct_request = RequestHelper.correct_purchase_date(request.json)
+        correct_request = RequestHelper.correct_dates(request.json)
         new_item = HardwareConfigurationItemController.create_new_item_version(item_id, **correct_request)
         return jsonify(item_schema.dump(new_item))
     except Exception as e:
