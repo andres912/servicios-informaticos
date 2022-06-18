@@ -73,6 +73,14 @@ def create_change():
     change = ChangeController.create(**correct_request)
     return change_schema.dump(change)
 
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>", methods=["PATCH"])
+# @user_required([EDIT_DISTRIBUTOR])
+def patch_change(change_id):
+    """
+    PATCH endpoint to update a new Change.
+    """
+    change = ChangeController.update(id=change_id, **request.json)
+    return jsonify(change_schema.dump(change))
 
 @change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>", methods=["DELETE"])
 # @user_required([EDIT_DISTRIBUTOR])
