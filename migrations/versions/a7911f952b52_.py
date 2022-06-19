@@ -1,4 +1,4 @@
-"""empty message
+""" adds Association tables between Configuration Items and Incidents
 
 Revision ID: a7911f952b52
 Revises: 08f15edbcdb6
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'a7911f952b52'
-down_revision = '08f15edbcdb6'
+down_revision = '6d1ea3d02057'
 branch_labels = None
 depends_on = None
 
