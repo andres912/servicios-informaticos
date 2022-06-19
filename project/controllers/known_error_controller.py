@@ -40,13 +40,14 @@ class KnownErrorController(BaseController):
 
         kwargs["known_error_id"] = known_error.id
         kwargs["solution"] = solution
+        del kwargs["incidents"]
         known_error_version = cls.object_version_class(**kwargs)
         db.session.add(known_error_version)
         db.session.commit()
 
         known_error.set_current_version(known_error_version.id)
         db.session.commit()
-
+        import pdb;pdb.set_trace()
         return known_error
 
     @classmethod

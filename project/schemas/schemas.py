@@ -398,7 +398,8 @@ class KnownErrorVersionSchema(BaseModelSchema):
             "name",
             "description",
             "solution",
-            "version_number"
+            "version_number",
+            "created_by"
         )
         model = KnownErrorVersion
         include_relationships = False

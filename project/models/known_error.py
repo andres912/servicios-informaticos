@@ -27,7 +27,12 @@ class KnownError(Solvable):
         "KnownErrorVersion", foreign_keys=[current_version_id]
     )
 
-    def __init__(self, current_version_id: int = None, incidents: list = [], **kwargs):
+    def __init__(
+        self,
+        current_version_id: int = None,
+        incidents: list = [],
+        **kwargs
+    ):
         self.incidents = incidents
         self.current_version_id = current_version_id
         super().__init__(**kwargs)
@@ -38,6 +43,7 @@ class KnownError(Solvable):
         description: str = None,
         solution: str = None,
         taken_by: str = None,
+        **kwargs
     ) -> None:
         if title:
             self.title = title
@@ -47,6 +53,8 @@ class KnownError(Solvable):
             self.solution = solution
         if taken_by:
             self.taken_by = taken_by
+        return self.current_version.update(**kwargs)
+
 
 
     def verify_incidents(self, incidents: list) -> None:
