@@ -223,3 +223,12 @@ class ItemVersionNotFoundException(Exception):
             item_family, version
         )
         self.kwargs = kwargs
+
+class KnownErrorVersionNotFoundException(Exception):
+    """Raised when an known error version was not found"""
+
+    def __init__(self, known_error_family: int, version: int, **kwargs):
+        self.message = "No se encontró el known error de la familia {} con la versión {}".format(
+            known_error_family, version
+        )
+        self.kwargs = kwargs
