@@ -23,6 +23,7 @@ from project.models.known_error import KnownError
 from project.models.versions.hardware_item_version import HardwareItemVersion
 from project.models.versions.sla_item_version import SLAItemVersion
 from project.models.versions.software_item_version import SoftwareItemVersion
+from project.models.versions.known_error_version import KnownErrorVersion
 
 DATE_FORMAT = "%d/%m/%Y"
 DATETIME_FORMAT = "%d/%m/%Y %H:%M"
@@ -376,11 +377,8 @@ class ChangeSchema(BaseModelSchema):
 class KnownErrorSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
-            "description",
-            "status",
-            "created_by",
-            "solution",
-            "taken_by",
+            "current_version",
+            "versions",
             "incidents",
         )
         model = KnownError
@@ -390,6 +388,21 @@ class KnownErrorSchema(BaseModelSchema):
     incidents = fields.Nested(
         "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
     )
+
+    current_version = fields.Nested("KnownErrorVersionSchema")
+    versions = fields.Nested("KnownErrorVersionSchema", many=True, only=("id", "version_number", "name"))
+
+class KnownErrorVersionSchema(BaseModelSchema):
+    class Meta:
+        fields = BaseModelSchema.Meta.fields + (
+            "name",
+            "description",
+            "solution",
+            "version_number"
+        )
+        model = KnownErrorVersion
+        include_relationships = False
+        load_instance = True
 
 
 class CommentSchema(BaseModelSchema):
