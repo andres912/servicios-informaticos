@@ -390,12 +390,11 @@ class KnownErrorSchema(BaseModelSchema):
     )
 
     current_version = fields.Nested("KnownErrorVersionSchema")
-    versions = fields.Nested("KnownErrorVersionSchema", many=True, only=("id", "version_number", "name"))
+    versions = fields.Nested("KnownErrorVersionSchema", many=True)
 
 class KnownErrorVersionSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
-            "name",
             "description",
             "solution",
             "version_number",
