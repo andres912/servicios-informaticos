@@ -341,10 +341,29 @@ class ChangeSchema(BaseModelSchema):
             "taken_by",
             "incidents",
             "problems",
+            "hardware_configuration_items",
+            "software_configuration_items",
+            "sla_configuration_items",
         )
         model = Change
         include_relationships = True
         load_instance = True
+    
+    hardware_configuration_items = fields.Nested(
+        "HardwareConfigurationItemSchema",
+        many=True,
+        exclude=["versions"]
+    )
+    software_configuration_items = fields.Nested(
+        "SoftwareConfigurationItemSchema",
+        many=True,
+        exclude=["versions"]
+    )
+    sla_configuration_items = fields.Nested(
+        "SLAConfigurationItemSchema",
+        many=True,
+        exclude=["versions"]
+    )
 
     incidents = fields.Nested(
         "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
