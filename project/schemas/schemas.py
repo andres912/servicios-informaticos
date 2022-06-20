@@ -175,7 +175,8 @@ class ItemVersionSchema(BaseModelSchema):
         fields = BaseModelSchema.Meta.fields + (
             "name",
             "description",
-            "version_number"
+            "version_number",
+            "is_draft"
         )
         include_relationships = False
         load_instance = True
@@ -255,13 +256,13 @@ class ConfigurationItemSchema(BaseModelSchema):
         """
         Needy to use versions as a list object when dumping ConfigurationItem into json.
         """
-        def remove_current_version_from_versions(item_data):
+        def remove_current_version_and_draft_from_versions(item_data):
             if not "versions" in item_data:
                 return
-            for version in item_data["versions"]:
-                if version["id"] == item_data["current_version_id"]:
+            versions = item_data["versions"][:]
+            for version in versions:
+                if version["id"] == item_data["current_version_id"] or version["is_draft"] == True:
                     item_data["versions"].remove(version)
-                    return
 
         def extract_version_info(item_data):
             if not item_data["current_version"]:
@@ -279,10 +280,10 @@ class ConfigurationItemSchema(BaseModelSchema):
         if many:
             for item_data in data:
                 extract_version_info(item_data)
-                remove_current_version_from_versions(item_data)
+                remove_current_version_and_draft_from_versions(item_data)
         else:
             extract_version_info(data)
-            remove_current_version_from_versions(data)
+            remove_current_version_and_draft_from_versions(data)
         return data
 
 
@@ -298,7 +299,7 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
 
     purchase_date = fields.fields.DateTime(format=DATE_FORMAT)
     current_version = fields.Nested("HardwareItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name"))
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
 
 
 

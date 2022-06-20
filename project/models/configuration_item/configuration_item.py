@@ -23,3 +23,16 @@ class ConfigurationItem(BaseModel):
 
     def set_current_version(self, version_id: int):
         self.current_version_id = version_id
+
+    def set_draft(self, version_id: int):
+        self.draft_id = version_id
+
+    def has_draft(self):
+        return self.draft_id is not None
+
+    def get_versions(self):
+        versions = self.versions
+        for version in versions:
+            if version.id == self.curent_version_id or version.is_draft:
+                versions.remove(version)
+        return versions

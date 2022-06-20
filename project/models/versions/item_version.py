@@ -1,5 +1,7 @@
 from datetime import datetime
 from imp import acquire_lock
+
+from sqlalchemy import ForeignKey
 from project import db
 from project.models.base_model import BaseModel, NullBaseModel
 from project.models.exceptions import ObjectCreationException
@@ -15,12 +17,18 @@ class ItemVersion(BaseModel):
     version_number = db.Column(db.SmallInteger, default=1, nullable=False)
     is_draft = db.Column(db.Boolean, default=False, nullable=False)
 
+    @declared_attr
+    def change_id(cls):
+        return db.Column(db.Integer, ForeignKey("change.id"), nullable=True)
+
     def __init__(
         self,
         item_id,
         name: str,
         description: str,
         version_number: int = 1,
+        is_draft: bool = False,
+        change_id: int = None,
         
     ):
         super().__init__()
@@ -28,6 +36,8 @@ class ItemVersion(BaseModel):
         self.description = description
         self.version_number = version_number
         self.item_id = item_id
+        self.is_draft = is_draft
+        self.change_id = change_id
 
     def _update(
         self,

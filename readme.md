@@ -9,10 +9,16 @@
 - Docker Compose
 
 ### Requisitos:
-(Además de las tecnologías mencionadas)
+
+- (Si fuera necesario dropear la base de datos) Ejecutar el siguiente comando:
+ ```
+  sudo -u postgres psql --dbname=postgres -f ./drop_db.sql
+ ```
+
 - Crear una base de datos en PostgreSQL (los datos tienen que ser de acuerdo a lo que figura en .env.dev)
  ```
  sudo -u postgres psql --dbname=postgres -f ./create_db.sql
+
  ```
 - (Librería no relacionada a Python): libpq-dev (sudo apt-get install libpq-dev) -> necesaria para instalar psycopg2
 - (Para ejecución local): crear en Postgresql una base de datos llamada "proy_inf" con pass "example"

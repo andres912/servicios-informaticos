@@ -8,7 +8,7 @@ from project.models.exceptions import (
     MissingFieldsException,
     ObjectNotFoundException,
 )
-from project.schemas.schemas import HardwareConfigurationItemSchema
+from project.schemas.schemas import HardwareConfigurationItemSchema, HardwareItemVersionSchema
 
 HARDWARE_CI_ITEMS_ENDPOINT = "/configuration-items/hardware"
 
@@ -16,6 +16,7 @@ hardware_ci_blueprint = Blueprint("hardware_ci_blueprint", __name__)
 
 item_schema = HardwareConfigurationItemSchema()
 items_schema = HardwareConfigurationItemSchema(many=True, exclude=["versions"])
+draft_schema = HardwareItemVersionSchema()
 
 POST_FIELDS = {
     "name",
@@ -128,5 +129,31 @@ def create_item_version(item_id):
         correct_request = RequestHelper.correct_dates(request.json)
         new_item = HardwareConfigurationItemController.create_new_item_version(item_id, **correct_request)
         return jsonify(item_schema.dump(new_item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+@hardware_ci_blueprint.route(f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["POST"])
+def create_item_draft(item_id):
+    try:
+        correct_request = RequestHelper.correct_dates(request.json)
+        new_item = HardwareConfigurationItemController.create_draft(item_id, **correct_request)
+        return jsonify(item_schema.dump(new_item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+@hardware_ci_blueprint.route(f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["GET"])
+def get_item_draft(item_id):
+    try:
+        item = HardwareConfigurationItemController.load_by_id(item_id)
+        if item.has_draft():
+            draft = item.draft
+            change_id = int(request.args["change_id"])
+            if change_id != draft.change_id:
+                return jsonify({"errors": {"change_id": "Draft does not match requested change_id"}}), 400
+            
+            return jsonify(draft_schema.dump(draft))
+        return jsonify(item_schema.dump(item))
+
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
