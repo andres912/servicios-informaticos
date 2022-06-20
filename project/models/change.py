@@ -102,7 +102,7 @@ class Change(Solvable):
     
     def verify_problems_incidents(self, incidents: list, problems: list) -> None:
         if not problems and not incidents:
-            raise ObjectCreationException(
+            raise ChangeApplicationError(
                 object="Change", cause="Requires atleast 1 incident OR problem"
             )
 

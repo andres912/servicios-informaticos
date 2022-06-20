@@ -232,3 +232,13 @@ class KnownErrorVersionNotFoundException(Exception):
             known_error_family, version
         )
         self.kwargs = kwargs
+
+
+class ChangeApplicationError(Exception):
+    """Raised when an known error version was not found"""
+
+    def __init__(self, item_id: int, change_id: int, **kwargs):
+        self.message = "El borrador del ítem {} no está asociado al cambio ".format(
+            item_id, change_id
+        )
+        self.kwargs = kwargs

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from project.controllers.change_controller import ChangeController
 from project.helpers.change_request_helper import ChangeRequestHelper
+from project.helpers.request_helpers import ErrorHandler
 from project.schemas.schemas import ChangeSchema
 
 CHANGES_ENDPOINT = "/changes"
@@ -104,3 +105,15 @@ def delete_all():
     changes_amount = ChangeController.count()
     ChangeController.delete_all()
     return f"{changes_amount} changes have been deleted"
+
+
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>/apply", methods=["POST"])
+def apply_change(change_id):
+    """
+    Creates a new Hardware Configuration Item
+    """
+    try:
+        ChangeController.apply_change(int(change_id))
+        return "Cambio aplicado", 200
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
