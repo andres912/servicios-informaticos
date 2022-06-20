@@ -47,7 +47,6 @@ class KnownErrorController(BaseController):
 
         known_error.set_current_version(known_error_version.id)
         db.session.commit()
-        import pdb;pdb.set_trace()
         return known_error
 
     @classmethod
