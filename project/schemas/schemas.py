@@ -176,7 +176,8 @@ class ItemVersionSchema(BaseModelSchema):
             "name",
             "description",
             "version_number",
-            "is_draft"
+            "is_draft",
+            "change_id"
         )
         include_relationships = False
         load_instance = True
