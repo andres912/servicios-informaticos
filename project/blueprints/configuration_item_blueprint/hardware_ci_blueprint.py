@@ -167,9 +167,9 @@ def update_item_draft(item, change_id, request_json):
     return draft.update(**correct_request)
 
 
-def create_new_draft(item, request_json):
+def create_new_draft(item, change_id, request_json):
     correct_request = RequestHelper.correct_dates(request.json)
-    draft = HardwareConfigurationItemController.create_draft(item.id, **correct_request)
+    draft = HardwareConfigurationItemController.create_draft(item.id, change_id, **correct_request)
     return draft
 
 

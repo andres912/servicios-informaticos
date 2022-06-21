@@ -247,12 +247,17 @@ class ConfigurationItemSchema(BaseModelSchema):
         fields = BaseModelSchema.Meta.fields + (
             "last_version",
             "item_type",
-            "draft"
+            "draft_change_id",
+            "draft_id"
         )
         include_relationships = True
         load_instance = True
 
-    draft = fields.Nested("ItemVersionSchema", only=("change_id",))
+    draft_change_id = fields.fields.Method("get_draft_change_id")
+
+    def get_draft_change_id(self, obj: ConfigurationItem) -> str:
+        draft = obj.draft
+        return draft.change_id if draft else None
     
     @post_dump(pass_many=True)
     def rearrange_info(self, data, many, **kwargs):

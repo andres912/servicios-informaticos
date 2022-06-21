@@ -107,12 +107,13 @@ class ConfigurationItemController(BaseController):
         return item
 
     @classmethod
-    def create_draft(cls, item_id: int, **kwargs):
+    def create_draft(cls, item_id: int, change_id: int, **kwargs):
         item = cls.load_by_id(item_id)
 
         kwargs["item_id"] = item_id
         kwargs["is_draft"] = True
-        del kwargs["draft"] 
+        kwargs["change_id"] = change_id
+        
         new_version = cls.object_version_class(**kwargs)
         db.session.add(new_version)
         db.session.commit()
@@ -120,7 +121,7 @@ class ConfigurationItemController(BaseController):
         item.set_draft(new_version.id)
         db.session.commit()
 
-        return item
+        return new_version
 
 
     @classmethod
