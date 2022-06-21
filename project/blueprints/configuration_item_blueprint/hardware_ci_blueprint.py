@@ -168,7 +168,7 @@ def update_item_draft(item, change_id, request_json):
 
 
 def create_new_draft(item, change_id, request_json):
-    correct_request = RequestHelper.correct_dates(request.json)
+    correct_request = RequestHelper.correct_dates(request_json)
     draft = HardwareConfigurationItemController.create_draft(item.id, change_id, **correct_request)
     return draft
 
@@ -177,6 +177,7 @@ def create_new_draft(item, change_id, request_json):
     f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["POST"]
 )
 def create_item_draft(item_id):
+    import pdb; pdb.set_trace()
     try:
         change_id = int(request.args["change_id"])
         item = HardwareConfigurationItemController.load_by_id(item_id)
