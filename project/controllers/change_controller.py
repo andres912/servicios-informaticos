@@ -25,3 +25,20 @@ class ChangeController(SolvableController):
 
         db.session.commit()
         return change
+
+    @classmethod
+    def discard_change(cls, change_id):
+        change = cls.load_by_id(change_id)
+        items = (
+            change.hardware_configuration_items
+            + change.software_configuration_items
+            + change.sla_configuration_items
+        )
+
+        for item in items:
+            if item.has_draft():
+                draft = item.draft
+                item.discard_change(change_id)
+
+        db.session.commit()
+        return change

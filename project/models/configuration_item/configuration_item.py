@@ -48,4 +48,13 @@ class ConfigurationItem(BaseModel):
         self.draft_id = None
         self.last_version += 1
         self.draft.version_number = self.last_version
+
+    def discard_change(self, change_id):
+        draft = self.draft
+        if change_id != draft.change_id:
+            raise ChangeApplicationError(item_id=self.id, change_id=change_id)
+        
+        self.draft.is_draft = False
+        self.draft_id = None
+        self.draft = None
         

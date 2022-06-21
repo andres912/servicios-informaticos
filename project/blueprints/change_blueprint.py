@@ -110,10 +110,21 @@ def delete_all():
 @change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>/apply", methods=["POST"])
 def apply_change(change_id):
     """
-    Creates a new Hardware Configuration Item
+    Applies change
     """
     try:
         ChangeController.apply_change(int(change_id))
         return "Cambio aplicado", 200
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>/discard", methods=["POST"])
+def discard_change(change_id):
+    """
+    DiscardsChange
+    """
+    try:
+        ChangeController.discard_change(int(change_id))
+        return "Cambio rechazado", 200
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)

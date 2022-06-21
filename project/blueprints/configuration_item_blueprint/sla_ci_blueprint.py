@@ -157,9 +157,9 @@ def update_item_draft(item, change_id, request_json):
     return draft.update(**correct_request)
 
 
-def create_new_draft(item, request_json):
+def create_new_draft(item, change_id, request_json):
     correct_request = RequestHelper.correct_dates(request.json)
-    draft = SLAConfigurationItemController.create_draft(item.id, **correct_request)
+    draft = SLAConfigurationItemController.create_draft(item.id, change_id, **correct_request)
     return draft
 
 
@@ -173,7 +173,7 @@ def create_item_draft(item_id):
             draft = update_item_draft(item, change_id, request.json)
             return jsonify(draft_schema.dump(draft))
         else:
-            draft = create_new_draft(item, request.json)
+            draft = create_new_draft(item, change_id, request.json)
             return jsonify(draft_schema.dump(draft))
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
