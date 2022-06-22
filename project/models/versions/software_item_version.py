@@ -9,6 +9,7 @@ class SoftwareItemVersion(ItemVersion):
     software_version = db.Column(db.String(100), nullable=False)
     type = db.Column(db.String(100), nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey("ci_software.id"), nullable=False)
+    change = db.relationship("Change")
 
     def __init__(
         self,

@@ -57,4 +57,7 @@ class ConfigurationItem(BaseModel):
         self.draft.is_draft = False
         self.draft_id = None
         self.draft = None
+
+    def restore_version(self, version_id):
+        self.current_version_id = version_id
         

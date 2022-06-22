@@ -15,6 +15,7 @@ class SLAItemVersion(ItemVersion):
     measurement_value = db.Column(db.Integer, nullable=False)
     is_crucial = db.Column(db.Boolean, default=False, nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey("ci_sla.id"), nullable=False)
+    change = db.relationship("Change")
 
     def __init__(
         self,

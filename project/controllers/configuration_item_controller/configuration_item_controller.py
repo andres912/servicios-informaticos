@@ -68,14 +68,14 @@ class ConfigurationItemController(BaseController):
     @classmethod
     def restore_item_version(cls, item_id: int, item_version: int):
         item = cls.load_by_id(item_id)
-        new_version = cls.object_version_class.query.filter_by(
-            item_id=item_id, version=item_version
+        item_version = cls.object_version_class.query.filter_by(
+            item_id=item_id, version_number=item_version
         ).first()
-        if not new_version:
+        if not item_version:
             raise ItemVersionNotFoundException(
-                item_id=item_id, item_version=item_version
+                item_id=item_id, version_number=item_version
             )
-        item.current_version_id = new_version.id
+        item.restore_version(item_version.id)
         db.session.commit()
         return item
 
@@ -84,9 +84,7 @@ class ConfigurationItemController(BaseController):
         """
         Returns all Model objects, filtered by not deleted.
         """
-        return cls.object_class.query.filter_by(
-            is_deleted=False
-        ).all()
+        return cls.object_class.query.filter_by(is_deleted=False).all()
 
     @classmethod
     def create_new_item_version(cls, item_id: int, **kwargs):
@@ -95,7 +93,7 @@ class ConfigurationItemController(BaseController):
 
         kwargs["version_number"] = new_version_number
         kwargs["item_id"] = item_id
-        
+
         new_version = cls.object_version_class(**kwargs)
         db.session.add(new_version)
         db.session.commit()
@@ -114,7 +112,7 @@ class ConfigurationItemController(BaseController):
         kwargs["is_draft"] = True
         kwargs["change_id"] = change_id
         del kwargs["draft_change_id"]
-        
+
         new_version = cls.object_version_class(**kwargs)
         db.session.add(new_version)
         db.session.commit()
@@ -122,12 +120,11 @@ class ConfigurationItemController(BaseController):
         item.set_draft(new_version.id)
         db.session.commit()
 
-
     @classmethod
     def update_item_draft(cls, item_id: int, **kwargs):
         item = cls.load_by_id(item_id)
         draft = item.draft
-        
+
         draft.update(**kwargs)
         db.session.commit()
 

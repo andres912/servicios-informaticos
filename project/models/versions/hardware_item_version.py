@@ -13,6 +13,7 @@ class HardwareItemVersion(ItemVersion):
     price = db.Column(db.BigInteger, nullable=False)
     purchase_date = db.Column(db.DateTime, nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey("ci_hardware.id"), nullable=False)
+    change = db.relationship("Change")
 
     def __init__(
         self,

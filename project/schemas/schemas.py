@@ -178,10 +178,13 @@ class ItemVersionSchema(BaseModelSchema):
             "description",
             "version_number",
             "is_draft",
-            "change_id"
+            "change_id",
+            "change",
         )
         include_relationships = False
         load_instance = True
+
+    change = fields.Nested("ChangeSchema", only=("id", "description"))
 
 
 class HardwareItemVersionSchema(ItemVersionSchema):
@@ -233,73 +236,6 @@ class SLAItemVersionSchema(ItemVersionSchema):
     ending_date = fields.fields.DateTime(format=DATE_FORMAT)
 
 
-class DraftSchema(BaseModelSchema):
-    class Meta:
-        fields = BaseModelSchema.Meta.fields + (
-            "name",
-            "description",
-            "version_number",
-            "is_draft",
-            "change_id",
-            "id"
-        )
-        include_relationships = False
-        load_instance = True
-
-    id = fields.fields.Method("get_id")
-
-    def get_id(self, obj: ItemVersion) -> int:
-        return obj.item_id
-
-
-class SLADraftSchema(DraftSchema):
-    class Meta:
-        fields = ItemVersionSchema.Meta.fields + (
-            "service_type",
-            "service_manager",
-            "client",
-            "starting_date",
-            "ending_date",
-            "measurement_unit",
-            "measurement_value",
-            "is_crucial",
-        )
-        model = SLAItemVersion
-        include_relationships = True
-        load_instance = True
-
-    starting_date = fields.fields.DateTime(format=DATE_FORMAT)
-    ending_date = fields.fields.DateTime(format=DATE_FORMAT)
-
-
-class HardwareItemVersionSchema(ItemVersionSchema):
-    class Meta:
-        fields = ItemVersionSchema.Meta.fields + (
-            "type",
-            "manufacturer",
-            "serial_number",
-            "price",
-            "purchase_date",
-        )
-        model = HardwareItemVersion
-        include_relationships = False
-        load_instance = True
-
-    purchase_date = fields.fields.DateTime(format=DATE_FORMAT)
-
-
-class SoftwareItemVersionSchema(ItemVersionSchema):
-    class Meta:
-        fields = ItemVersionSchema.Meta.fields + (
-            "type",
-            "provider",
-            "software_version",
-        )
-        model = SoftwareItemVersion
-        include_relationships = True
-        load_instance = True
-
-
 class ReducedConfigurationItemSchema(BaseModelSchema):
     class Meta:
         fields = ("name",)
@@ -324,7 +260,7 @@ class ConfigurationItemSchema(BaseModelSchema):
         load_instance = True
 
     draft_change_id = fields.fields.Method("get_draft_change_id")
-    draft = fields.Nested(DraftSchema, dump_only=True)
+    draft = fields.Nested(ItemVersionSchema, dump_only=True)
 
     def get_draft_change_id(self, obj: ConfigurationItem) -> str:
         draft = obj.draft
@@ -384,7 +320,7 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
     purchase_date = fields.fields.DateTime(format=DATE_FORMAT)
     current_version = fields.Nested("HardwareItemVersionSchema")
     draft = fields.Nested("HardwareItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
 
 
 class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
