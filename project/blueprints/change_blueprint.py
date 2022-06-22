@@ -128,3 +128,19 @@ def discard_change(change_id):
         return "Cambio rechazado", 200
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
+
+@change_blueprint.route(
+    f"{CHANGES_ENDPOINT}/<change_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_change(change_id):
+    """
+    Add comment to an change
+    """
+    comment = request.json["comment"]
+    created_by = request.json["created_by"]
+    ChangeController.add_comment_to_solvable(
+        solvable_id=change_id, comment_message=comment, created_by=created_by
+    )
+    return jsonify({"message": "Comment added"})

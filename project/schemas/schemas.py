@@ -355,9 +355,9 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
     versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
 
 
-class ChangeSchema(BaseModelSchema):
+class ChangeSchema(SolvableSchema):
     class Meta:
-        fields = BaseModelSchema.Meta.fields + (
+        fields = SolvableSchema.Meta.fields + (
             "description",
             "priority",
             "status",
