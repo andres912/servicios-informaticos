@@ -122,8 +122,14 @@ class ConfigurationItemController(BaseController):
         item.set_draft(new_version.id)
         db.session.commit()
 
-        return new_version
 
+    @classmethod
+    def update_item_draft(cls, item_id: int, **kwargs):
+        item = cls.load_by_id(item_id)
+        draft = item.draft
+        
+        draft.update(**kwargs)
+        db.session.commit()
 
     @classmethod
     def load_by_name(cls, object_name: str) -> None:
