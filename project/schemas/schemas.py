@@ -336,7 +336,7 @@ class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
 
     current_version = fields.Nested("SoftwareItemVersionSchema")
     draft = fields.Nested("SoftwareItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
     
 
 class SLAConfigurationItemSchema(ConfigurationItemSchema):
@@ -352,7 +352,7 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
     
     current_version = fields.Nested("SLAItemVersionSchema")
     draft = fields.Nested("SLAItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
 
 
 class ChangeSchema(SolvableSchema):
