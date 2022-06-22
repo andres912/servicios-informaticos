@@ -20,7 +20,7 @@ sla_ci_blueprint = Blueprint("sla_ci_blueprint", __name__)
 
 item_schema = SLAConfigurationItemSchema()
 items_schema = SLAConfigurationItemSchema(many=True, exclude=["versions"])
-draft_schema = SLAItemVersionSchema()
+draft_schema = SLAConfigurationItemSchema(exclude=["current_version"])
 
 POST_FIELDS = {
     "name",
@@ -154,7 +154,7 @@ def update_item_draft(item, change_id, request_json):
         )
 
     correct_request = RequestHelper.correct_dates(request_json)
-    return draft.update(**correct_request)
+    SLAConfigurationItemController.update_item_draft(item.id, **correct_request)
 
 
 def create_new_draft(item, change_id, request_json):
@@ -172,24 +172,24 @@ def create_item_draft(item_id):
         item = SLAConfigurationItemController.load_by_id(item_id)
 
         if item.has_draft():
-            draft = update_item_draft(item, change_id, request.json)
-            return jsonify(draft_schema.dump(draft))
+            update_item_draft(item, change_id, request.json)
+            return jsonify(draft_schema.dump(item))
         else:
-            draft = create_new_draft(item, change_id, request.json)
-            return jsonify(draft_schema.dump(draft))
+            create_new_draft(item, change_id, request.json)
+            return jsonify(draft_schema.dump(item))
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
 
 
-
-@sla_ci_blueprint.route(f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["GET"])
+@sla_ci_blueprint.route(
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["GET"]
+)
 def get_item_draft(item_id):
     try:
         item = SLAConfigurationItemController.load_by_id(item_id)
         if item.has_draft():
-            draft = item.draft
             change_id = int(request.args["change_id"])
-            if change_id != draft.change_id:
+            if change_id != item.draft.change_id:
                 return (
                     jsonify(
                         {
@@ -200,8 +200,7 @@ def get_item_draft(item_id):
                     ),
                     400,
                 )
-
-            return jsonify(draft_schema.dump(draft))
+            return jsonify(draft_schema.dump(item))
         return jsonify(item_schema.dump(item))
 
     except Exception as e:
