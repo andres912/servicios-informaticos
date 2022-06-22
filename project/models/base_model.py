@@ -32,7 +32,7 @@ class BaseModel(db.Model):
         Deletes an object (for real).
         """
         db.session.delete(self)
-        db.commit()
+        db.session.commit()
 
     def undelete(self) -> None:
         """

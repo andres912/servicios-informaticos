@@ -40,7 +40,6 @@ class ChangeController(SolvableController):
             if item.has_draft():
                 draft = item.draft
                 item.discard_change(change_id)
-                ConfigurationItemController.delete(draft.id)
 
         db.session.commit()
         return change

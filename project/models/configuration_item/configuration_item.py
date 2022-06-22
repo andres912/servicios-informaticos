@@ -56,6 +56,7 @@ class ConfigurationItem(BaseModel):
         
         self.draft_id = None
         self.draft = None
+        db.session.commit()
         draft.force_delete()
 
     def restore_version(self, version_id):
