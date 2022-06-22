@@ -222,6 +222,7 @@ class SLAItemVersionSchema(ItemVersionSchema):
             "measurement_unit",
             "measurement_value",
             "is_crucial",
+            "draft"
         )
         model = SLAItemVersion
         include_relationships = True
@@ -310,7 +311,6 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
     versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
 
 
-
 class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
     class Meta:
         fields = ConfigurationItemSchema.Meta.fields + (
@@ -322,13 +322,12 @@ class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
         load_instance = True
 
     current_version = fields.Nested("SoftwareItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name"))
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
     
-
 
 class SLAConfigurationItemSchema(ConfigurationItemSchema):
     class Meta:
-        fields = ItemVersionSchema.Meta.fields + (
+        fields = ConfigurationItemSchema.Meta.fields + (
             "current_version",
             "versions"
         )
@@ -337,7 +336,7 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
         load_instance = True
     
     current_version = fields.Nested("SLAItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name"))
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft"))
 
 
 class ChangeSchema(BaseModelSchema):

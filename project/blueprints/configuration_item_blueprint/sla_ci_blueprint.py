@@ -158,12 +158,14 @@ def update_item_draft(item, change_id, request_json):
 
 
 def create_new_draft(item, change_id, request_json):
-    correct_request = RequestHelper.correct_dates(request.json)
+    correct_request = RequestHelper.correct_dates(request_json)
     draft = SLAConfigurationItemController.create_draft(item.id, change_id, **correct_request)
     return draft
 
 
-@sla_ci_blueprint.route(f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["POST"])
+@sla_ci_blueprint.route(
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["POST"]
+)
 def create_item_draft(item_id):
     try:
         change_id = int(request.args["change_id"])
@@ -177,6 +179,7 @@ def create_item_draft(item_id):
             return jsonify(draft_schema.dump(draft))
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
 
 
 @sla_ci_blueprint.route(f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["GET"])
