@@ -14,7 +14,10 @@ ROLES = {
 	],
 	"ChangesManager" : [
 		"changes_create",
-		"changes_edit"
+		"changes_update",
+		"sla_update",
+		"hardware_update",
+		"software_update"
 	]
 }
 
