@@ -27,6 +27,13 @@ class BaseModel(db.Model):
         """
         self.is_deleted = True
 
+    def force_delete(self) -> None:
+        """
+        Deletes an object (for real).
+        """
+        db.session.delete(self)
+        db.commit()
+
     def undelete(self) -> None:
         """
         Updates object with deletion status.

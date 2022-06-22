@@ -1,3 +1,4 @@
+from project.controllers.configuration_item_controller.configuration_item_controller import ConfigurationItemController
 from project.controllers.solvable_controller import SolvableController
 from project.models.comment import ChangeComment
 from project.models.change import Change, NullChange
@@ -39,6 +40,7 @@ class ChangeController(SolvableController):
             if item.has_draft():
                 draft = item.draft
                 item.discard_change(change_id)
+                ConfigurationItemController.delete(draft.id)
 
         db.session.commit()
         return change
