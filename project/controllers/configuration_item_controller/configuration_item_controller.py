@@ -113,6 +113,7 @@ class ConfigurationItemController(BaseController):
         kwargs["item_id"] = item_id
         kwargs["is_draft"] = True
         kwargs["change_id"] = change_id
+        del kwargs["draft_change_id"]
         
         new_version = cls.object_version_class(**kwargs)
         db.session.add(new_version)
