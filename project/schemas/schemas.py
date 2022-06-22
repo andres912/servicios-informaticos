@@ -466,6 +466,7 @@ class KnownErrorSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
             "current_version",
+            "current_version_id",
             "versions",
             "incidents",
         )
@@ -479,6 +480,44 @@ class KnownErrorSchema(BaseModelSchema):
 
     current_version = fields.Nested("KnownErrorVersionSchema")
     versions = fields.Nested("KnownErrorVersionSchema", many=True)
+
+    @post_dump(pass_many=True)
+    def rearrange_info(self, data, many, **kwargs):
+        """
+        Needy to use versions as a list object when dumping KnownError into json.
+        """
+        def remove_current_version_from_versions(item_data):
+            if not "versions" in item_data:
+                return
+            versions = item_data["versions"][:]
+            for version in versions:
+                if version["id"] == item_data["current_version_id"]:
+                    item_data["versions"].remove(version)
+
+        def extract_version_info(item_data):
+            field_to_attach = "current_version"
+            if not item_data[field_to_attach]:
+                del item_data[field_to_attach]
+                return
+            for key in item_data[field_to_attach]:
+                if key == "id":
+                    continue
+                elif key == "version_number":
+                    item_data["current_version_number"] = item_data["current_version"][key]
+                else:
+                    item_data[key] = item_data[field_to_attach][key]
+            del item_data[field_to_attach]
+
+        #todo ver la importancia de esta parte
+        # if current_version is excluded, the item is attached to its draft
+        if many:
+            for item_data in data:
+                extract_version_info(item_data)
+                remove_current_version_from_versions(item_data)
+        else:
+            extract_version_info(data)
+            remove_current_version_from_versions(data)
+        return data
 
 class KnownErrorVersionSchema(BaseModelSchema):
     class Meta:
