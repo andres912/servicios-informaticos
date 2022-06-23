@@ -81,5 +81,5 @@ def create_known_error():
     """
     correct_request = KnownErrorRequestHelper.create_error_request(request.json)
     error = KnownErrorController.create(**correct_request)
-    return errors_schema.dump(error)
+    return error_schema.dump(error)
 
