@@ -5,6 +5,11 @@ from project.schemas.schemas import KnownErrorSchema
 from project.models.exceptions import (
     ObjectNotFoundException,
 )
+from project.helpers.request_helpers import (
+    RequestHelper,
+    RequestValidator,
+    ErrorHandler,
+)
 
 
 KNOWN_ERRORS_ENDPOINT = "/errors"
@@ -59,17 +64,36 @@ def update_known_error(error_id):
     return jsonify(error_schema.dump(error))
 
 
-#* Ver esto despues, debe ser necesario para el tag de los known error del user logueado
-'''
-@known_error_blueprint.route(f"{KNOWN_ERRORS_ENDPOINT}/<user_id>", methods=["GET"])
-# @user_required([EDIT_DISTRIBUTOR])
-def get_user_known_errors(user_id):
+@known_error_blueprint.route(f"{KNOWN_ERRORS_ENDPOINT}/<error_id>/version", methods=["POST"])
+def create_error_version(error_id):
     """
-    GET endpoint to get all Errors from a specific user.
+    Creates a new Version for the Known Error
     """
-    errors = KnownErrorController.load_known_errors_assigned_to_user(username=user_id)
-    return jsonify(errors_schema.dump(errors))
-'''
+    try:
+        #correct_request = RequestHelper.correct_dates(request.json)
+        import pdb; pdb.set_trace()
+        new_error = KnownErrorController.create_new_known_error_version(
+            error_id, **request.json
+        )
+        return jsonify(error_schema.dump(new_error))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+@known_error_blueprint.route(f"{KNOWN_ERRORS_ENDPOINT}/<error_id>/restore", methods=["POST"])
+def restore_error_version(error_id):
+    """
+    Restores a Known Error Version
+    """
+    try:
+        version = request.json.get("version")
+        error = KnownErrorController.restore_known_error_version(
+            error_id, version
+        )
+        return jsonify(error_schema.dump(error))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
 
 
 #? ok ?
