@@ -21,7 +21,6 @@ class ConfigurationItem(BaseModel):
     def update(self, **kwargs):
         return self.current_version.update(**kwargs)
 
-
     def set_current_version(self, version_id: int):
         self.current_version_id = version_id
 
@@ -42,7 +41,7 @@ class ConfigurationItem(BaseModel):
         draft = self.draft
         if change_id != draft.change_id:
             raise ChangeApplicationError(item_id=self.id, change_id=change_id)
-        
+
         self.current_version_id = draft.id
         self.draft.is_draft = False
         self.draft_id = None
@@ -53,7 +52,7 @@ class ConfigurationItem(BaseModel):
         draft = self.draft
         if change_id != draft.change_id:
             raise ChangeApplicationError(item_id=self.id, change_id=change_id)
-        
+
         self.draft_id = None
         self.draft = None
         db.session.commit()
@@ -61,4 +60,11 @@ class ConfigurationItem(BaseModel):
 
     def restore_version(self, version_id):
         self.current_version_id = version_id
-        
+
+    def get_items(self):
+        return (
+            self.hardware_configuration_items
+            + self.software_configuration_items
+            + self.sla_configuration_items
+        )
+
