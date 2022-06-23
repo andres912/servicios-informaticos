@@ -135,7 +135,7 @@ def get_incidents_names():
     incidents = IncidentController.load_all()
     response = {
         "incidents": [
-            {"name": incident.description, "value": incident.description}
+            {"value": incident.description, "label": incident.description}
             for incident in incidents
         ]
     }
