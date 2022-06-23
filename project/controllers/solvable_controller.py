@@ -57,7 +57,7 @@ class SolvableController(BaseController):
 
     @classmethod
     def load_assigned(cls) -> None:
-        return cls.object_class.query.filter(cls.object_class.taken_by != None).all()
+        return cls.object_class.query.filter(cls.object_class.taken_by != None, cls.object_class.status != 'Resuelto').all()
 
     @classmethod
     def load_unassigned(cls) -> None:
