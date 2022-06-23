@@ -12,6 +12,7 @@ from project.models.versions.known_error_version import KnownErrorVersion
 class KnownError(Solvable):
     __tablename__ = "known_error"
     incidents = db.relationship("Incident", secondary="incident_known_error")
+    last_version = db.Column(db.SmallInteger, nullable=False)
 
     current_version_id = db.Column(
         db.Integer, ForeignKey("known_error_version.id"), nullable=True
@@ -35,6 +36,7 @@ class KnownError(Solvable):
     ):
         self.incidents = incidents
         self.current_version_id = current_version_id
+        self.last_version = 1
         super().__init__(**kwargs)
 
     def _update(

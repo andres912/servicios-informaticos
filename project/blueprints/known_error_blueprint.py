@@ -71,7 +71,6 @@ def create_error_version(error_id):
     """
     try:
         #correct_request = RequestHelper.correct_dates(request.json)
-        import pdb; pdb.set_trace()
         new_error = KnownErrorController.create_new_known_error_version(
             error_id, **request.json
         )
