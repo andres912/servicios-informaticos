@@ -403,6 +403,7 @@ class KnownErrorSchema(BaseModelSchema):
         fields = BaseModelSchema.Meta.fields + (
             "current_version",
             "current_version_id",
+            "last_version",
             "versions",
             "incidents",
         )

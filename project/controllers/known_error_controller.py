@@ -65,14 +65,14 @@ class KnownErrorController(BaseController):
         return known_error
 
     @classmethod
-    def restore_known_error_version(cls, known_error_id: int, known_error_version: int):
+    def restore_known_error_version(cls, known_error_id: int, version_id: int):
         known_error = cls.load_by_id(known_error_id)
         new_version = cls.object_version_class.query.filter_by(
-            known_error_id=known_error_id, version=known_error_version
+            known_error_id=known_error_id, id = version_id
         ).first()
         if not new_version:
             raise KnownErrorVersionNotFoundException(
-                known_error_id=known_error_id, known_error_version=known_error_version
+                known_error_id, version_id
             )
         known_error.current_version_id = new_version.id
         db.session.commit()
@@ -95,6 +95,11 @@ class KnownErrorController(BaseController):
         kwargs["version_number"] = new_version_number
         kwargs["known_error_id"] = known_error_id
 
+        del kwargs["current_version_id"]
+        del kwargs["current_version_number"]
+        del kwargs["incidents"]
+        del kwargs["versions"]
+        del kwargs["id"]
         new_version = cls.object_version_class(**kwargs)
         db.session.add(new_version)
         db.session.commit()
