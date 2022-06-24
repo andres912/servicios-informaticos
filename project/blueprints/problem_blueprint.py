@@ -121,7 +121,7 @@ def get_problem_names():
     """
     GET endpoint to get incidents names
     """
-    problems = ProblemController.load_all()
+    problems = ProblemController.load_unresolved()
     response = {"problems": [{"value": problem.description, "label": problem.description} for problem in problems]}
     return jsonify(response)
 

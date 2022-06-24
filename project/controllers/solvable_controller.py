@@ -3,7 +3,7 @@ from project.controllers.user_controller import UserController
 from project.models.exceptions import MissingFieldsException, ObjectNotFoundException
 from project.models.incident import Incident, NullIncident
 from project.models.solvable import NullSolvable, Solvable
-from project.models.status import STATUS_SOLVED
+from project.models.status import STATUS_REJECTED, STATUS_SOLVED
 from project import db
 
 
@@ -52,26 +52,32 @@ class SolvableController(BaseController):
         db.session.commit()
 
     @classmethod
-    def load_solved(cls) -> None:
+    def load_solved(cls):
         return cls.object_class.query.filter(cls.object_class.status == STATUS_SOLVED).all()
 
     @classmethod
-    def load_assigned(cls) -> None:
+    def load_assigned(cls):
         return cls.object_class.query.filter(cls.object_class.taken_by != None, cls.object_class.status != 'Resuelto').all()
 
     @classmethod
-    def load_unassigned(cls) -> None:
+    def load_unassigned(cls):
         return cls.object_class.query.filter(cls.object_class.taken_by == None).all()
 
     @classmethod
-    def load_taken_by_user(cls, username: str) -> None:
+    def load_taken_by_user(cls, username: str):
         return cls.object_class.query.filter(cls.object_class.taken_by == username).all()
 
     @classmethod
-    def load_by_name(cls, object_name: str) -> None:
+    def load_by_name(cls, object_name: str):
         return cls.object_class.query.filter(cls.object_class.name == object_name).first()
 
     @classmethod
-    def load_by_description(cls, description: str) -> None:
+    def load_by_description(cls, description: str):
         return cls.object_class.query.filter(cls.object_class.description == description).first()
+
+    @classmethod
+    def load_unresolved(cls) -> None:
+        filter_solved = cls.object_class.query.filter(cls.object_class.status != STATUS_SOLVED)
+        filter_rejected = filter_solved.filter(cls.object_class.status != STATUS_REJECTED) # changes only
+        return filter_rejected.all()
 

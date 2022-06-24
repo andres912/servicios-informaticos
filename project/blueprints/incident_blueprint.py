@@ -132,13 +132,14 @@ def get_incidents_names():
     """
     GET endpoint to get incidents names
     """
-    incidents = IncidentController.load_all()
+    incidents = IncidentController.load_unresolved()
     response = {
         "incidents": [
             {"value": incident.description, "label": incident.description}
             for incident in incidents
         ]
     }
+    print(response)
     return jsonify(response)
 
 
