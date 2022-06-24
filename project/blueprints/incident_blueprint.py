@@ -139,7 +139,6 @@ def get_incidents_names():
             for incident in incidents
         ]
     }
-    print(response)
     return jsonify(response)
 
 

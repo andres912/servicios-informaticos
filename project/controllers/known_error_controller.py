@@ -95,11 +95,6 @@ class KnownErrorController(BaseController):
         kwargs["version_number"] = new_version_number
         kwargs["known_error_id"] = known_error_id
 
-        del kwargs["current_version_id"]
-        del kwargs["current_version_number"]
-        del kwargs["incidents"]
-        del kwargs["versions"]
-        del kwargs["id"]
         new_version = cls.object_version_class(**kwargs)
         db.session.add(new_version)
         db.session.commit()
