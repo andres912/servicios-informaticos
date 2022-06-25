@@ -9,7 +9,7 @@
 - Docker Compose
 
 ### Requisitos:
-
+ 
 - (Si fuera necesario dropear la base de datos) Ejecutar el siguiente comando:
  ```
   sudo -u postgres psql --dbname=postgres -f ./drop_db.sql
