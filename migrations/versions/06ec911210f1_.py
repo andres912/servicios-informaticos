@@ -1,4 +1,4 @@
-"""empty message
+""" creates Incident table
 
 Revision ID: 06ec911210f1
 Revises: 

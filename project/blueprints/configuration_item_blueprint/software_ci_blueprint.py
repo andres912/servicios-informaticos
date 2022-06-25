@@ -15,7 +15,8 @@ SOFTWARE_CI_ITEMS_ENDPOINT = "/configuration-items/software"
 software_ci_blueprint = Blueprint("software_ci_blueprint", __name__)
 
 item_schema = SoftwareConfigurationItemSchema()
-items_schema = SoftwareConfigurationItemSchema(many=True)
+items_schema = SoftwareConfigurationItemSchema(many=True, exclude=["versions"])
+draft_schema = SoftwareConfigurationItemSchema(exclude=["current_version"])
 
 POST_FIELDS = {"name", "description", "type", "provider", "software_version"}
 
@@ -119,8 +120,71 @@ def create_item_version(item_id):
     Creates a new Software Configuration Item
     """
     try:
-        correct_request = RequestHelper.correct_purchase_date(request.json)
+        correct_request = RequestHelper.correct_dates(request.json)
         new_item = SoftwareConfigurationItemController.create_new_item_version(item_id, **correct_request)
         return jsonify(item_schema.dump(new_item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+def update_item_draft(item, change_id, request_json):
+    draft = item.draft
+    if change_id != draft.change_id:
+        return (
+            jsonify(
+                {"errors": {"change_id": "Draft does not match requested change_id"}}
+            ),
+            400,
+        )
+
+    correct_request = RequestHelper.correct_dates(request_json)
+    SoftwareConfigurationItemController.update_item_draft(item.id, **correct_request)
+
+
+def create_new_draft(item, change_id, request_json):
+    correct_request = RequestHelper.correct_dates(request_json)
+    draft = SoftwareConfigurationItemController.create_draft(item.id, change_id, **correct_request)
+    return draft
+
+
+@software_ci_blueprint.route(
+    f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["POST"]
+)
+def create_item_draft(item_id):
+    try:
+        change_id = int(request.args["change_id"])
+        item = SoftwareConfigurationItemController.load_by_id(item_id)
+
+        if item.has_draft():
+            update_item_draft(item, change_id, request.json)
+            return jsonify(draft_schema.dump(item))
+        else:
+            create_new_draft(item, change_id, request.json)
+            return jsonify(draft_schema.dump(item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+@software_ci_blueprint.route(
+    f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["GET"]
+)
+def get_item_draft(item_id):
+    try:
+        item = SoftwareConfigurationItemController.load_by_id(item_id)
+        if item.has_draft():
+            change_id = int(request.args["change_id"])
+            if change_id != item.draft.change_id:
+                return (
+                    jsonify(
+                        {
+                            "errors": {
+                                "change_id": "Draft does not match requested change_id"
+                            }
+                        }
+                    ),
+                    400,
+                )
+            return jsonify(draft_schema.dump(item))
+        return jsonify(item_schema.dump(item))
+
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)

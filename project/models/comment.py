@@ -23,7 +23,7 @@ class Comment(BaseModel):
     def created_by(cls):
         return db.Column(db.String(30), ForeignKey("user.username"))
 
-    def __init__(self, text: str, created_by:str):
+    def __init__(self, text: str, created_by:str=None):
         self.text = text
         self.created_by = created_by
 
@@ -33,7 +33,7 @@ class IncidentComment(Comment):
 
     incident_id = db.Column(db.Integer, db.ForeignKey("incident.id"))
 
-    def __init__(self, text: str, object_id: int, created_by:str):
+    def __init__(self, text: str, object_id: int, created_by:str=None):
         super().__init__(text, created_by)
         self.incident_id = object_id
 
@@ -43,7 +43,7 @@ class ProblemComment(Comment):
 
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
 
-    def __init__(self, text: str, object_id: int, created_by:str):
+    def __init__(self, text: str, object_id: int, created_by:str=None):
         super().__init__(text, created_by)
         self.problem_id = object_id
 

@@ -1,4 +1,6 @@
 from typing import List
+
+from sqlalchemy import text
 from project.controllers.base_controller import BaseController
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
@@ -7,11 +9,13 @@ from project.models.exceptions import (
     ItemVersionNotFoundException,
     ObjectNotFoundException,
 )
+from project.models.versions.item_version import ItemVersion
 
 
 class ConfigurationItemController(BaseController):
     object_class = ConfigurationItem
     null_object_class = None
+    object_version_class = ItemVersion
 
     @staticmethod
     def _verify_relations(hardware_configuration_item: ConfigurationItem) -> None:
@@ -21,49 +25,23 @@ class ConfigurationItemController(BaseController):
         pass
 
     @classmethod
-    def verify_versions(cls, item_version: int, item_family_id: int) -> None:
-        """
-        Verifies that the item family and item version exist.
-        """
-        if item_version == 1 and item_family_id != None:
-            raise InvalidItemVersionsException(
-                item_version=item_version, item_family_id=item_family_id
-            )
-        if item_version != 1 and item_family_id == None:
-            raise InvalidItemVersionsException(item_version=item_version)
-
-    @classmethod
-    def update_versions(cls, item_version, item_family_id):
-        """
-        Updates the item's first version if this version is the second one
-        """
-        if item_version != 2:  # solamente tiene que actualizar en la versión 2
-            return
-
-        first_version_item = cls.object_class.query.filter_by(id=item_family_id).first()
-        if not first_version_item:
-            raise ObjectNotFoundException(
-                object_name="Configuration Item", object_id=item_family_id
-            )
-
-        first_version_item.item_family_id = item_family_id
-        db.session.commit()
-
-    @classmethod
     def create(cls, **kwargs) -> ConfigurationItem:
         """
         Creates and saves HardwareConfigurationItem object.
         """
-        item_version = kwargs.get("version", 1)
-        item_family_id = kwargs.get("item_family_id", None)
+        item = cls.object_class(**kwargs)
+        db.session.add(item)
+        db.session.commit()  # necesario para tener el id
 
-        cls.verify_versions(item_version, item_family_id)
-        ci_item = cls.object_class(**kwargs)
-        db.session.add(ci_item)
+        kwargs["item_id"] = item.id
+        item_version = cls.object_version_class(**kwargs)
+        db.session.add(item_version)
         db.session.commit()
 
-        cls.update_versions(item_version, item_family_id)
-        return ci_item
+        item.set_current_version(item_version.id)
+        db.session.commit()
+
+        return item
 
     @classmethod
     def update(cls, item_id: int, **kwargs) -> ConfigurationItem:
@@ -89,47 +67,83 @@ class ConfigurationItemController(BaseController):
 
     @classmethod
     def restore_item_version(cls, item_id: int, item_version: int):
-        current_item = cls.load_by_id(item_id)
-        new_version = cls.object_class.query.filter_by(
-            version=item_version, item_family_id=current_item.item_family_id
+        item = cls.load_by_id(item_id)
+        item_version = cls.object_version_class.query.filter_by(
+            item_id=item_id, version_number=item_version
         ).first()
-        if not new_version:
+        if not item_version:
             raise ItemVersionNotFoundException(
-                item_family_id=current_item.item_family_id, version=item_version
+                item_id=item_id, version_number=item_version
             )
-        current_item.is_current_version = False
-        new_version.is_current_version = True
+        item.restore_version(item_version.id)
         db.session.commit()
-        return new_version
+        return item
 
     @classmethod
     def load_all(cls) -> List[ConfigurationItem]:
         """
         Returns all Model objects, filtered by not deleted.
         """
-        return cls.object_class.query.filter_by(is_deleted=False, is_current_version=True).all()
-
-    @classmethod
-    def get_last_item_version(cls, item_id: int):
-        item = cls.load_by_id(item_id)
-        last_version = cls.object_class.query.filter_by(
-            item_family_id=item.item_family_id
-        ).order_by(cls.object_class.version.desc()).first()
-        return last_version
-
-    @classmethod
-    def get_family_id_from_item_id(cls, item_id: int):
-        item = cls.load_by_id(item_id)
-        return item.item_family_id if item.version > 1 else item.id # si es la versión 1, el id de la familia es el id del item
+        return cls.object_class.query.filter_by(is_deleted=False).all()
 
     @classmethod
     def create_new_item_version(cls, item_id: int, **kwargs):
-        last_item_version = cls.get_last_item_version(item_id)
-        new_version = last_item_version.version + 1
-        kwargs["version"] = new_version
-        kwargs["item_family_id"] = cls.get_family_id_from_item_id(item_id)
-        new_item = cls.create(**kwargs)
-        db.session.add(new_item)
-        last_item_version.is_current_version = False
+        item = cls.load_by_id(item_id)
+        new_version_number = item.last_version + 1
+
+        kwargs["version_number"] = new_version_number
+        kwargs["item_id"] = item_id
+
+        new_version = cls.object_version_class(**kwargs)
+        db.session.add(new_version)
         db.session.commit()
-        return new_item
+
+        item.last_version = new_version_number
+        item.set_current_version(new_version.id)
+        db.session.commit()
+
+        return item
+
+    @classmethod
+    def create_draft(cls, item_id: int, change_id: int, **kwargs):
+        item = cls.load_by_id(item_id)
+        kwargs["item_id"] = item_id
+        kwargs["is_draft"] = True
+        kwargs["change_id"] = change_id
+        #del kwargs["draft_change_id"]
+
+        new_version = cls.object_version_class(**kwargs)
+        db.session.add(new_version)
+        db.session.commit()
+
+        item.set_draft(new_version.id)
+        db.session.commit()
+
+    @classmethod
+    def update_item_draft(cls, item_id: int, **kwargs):
+        item = cls.load_by_id(item_id)
+        draft = item.draft
+
+        draft.update(**kwargs)
+        db.session.commit()
+
+    @classmethod
+    def load_by_name(cls, object_name: str) -> None:
+        item_table_name = cls.object_class.__tablename__
+        item_version_table_name = cls.object_version_class.__tablename__
+        query = """
+            SELECT {item_table_name}.id FROM {item_table_name} JOIN {version_table_name} ON {item_table_name}.current_version_id = {version_table_name}.id
+            WHERE {version_table_name}.name = '{object_name}'
+        """.format(
+            item_table_name=item_table_name,
+            version_table_name=item_version_table_name,
+            object_name=object_name,
+        )
+
+        query = text(query)
+        result = db.engine.execute(query)
+        item = result.fetchone()
+        if not item:
+            raise ObjectNotFoundException(object_name="Item", object_id=object_name)
+        id = item[0]
+        return cls.load_by_id(id)

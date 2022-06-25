@@ -128,11 +128,11 @@ def test_sla_ci_get_all(
 
     assert response.status_code == 200
     assert len(response.json) == 1
-    assert response.json[0]["id"] == saved_sla_configuration_item.id
-    assert response.json[0]["name"] == saved_sla_configuration_item.name
-    assert response.json[0]["description"] == saved_sla_configuration_item.description
-    assert response.json[0]["service_type"] == saved_sla_configuration_item.service_type
-    assert response.json[0]["service_manager"] == saved_sla_configuration_item.service_manager
-    assert response.json[0]["client"] == saved_sla_configuration_item.client
-    assert response.json[0]["measurement_unit"] == saved_sla_configuration_item.measurement_unit
-    assert response.json[0]["measurement_value"] == saved_sla_configuration_item.measurement_value
+    assert response.json[0]["id"] == saved_sla_configuration_item.current_version.id
+    assert response.json[0]["name"] == saved_sla_configuration_item.current_version.name
+    assert response.json[0]["description"] == saved_sla_configuration_item.current_version.description
+    assert response.json[0]["service_type"] == saved_sla_configuration_item.current_version.service_type
+    assert response.json[0]["service_manager"] == saved_sla_configuration_item.current_version.service_manager
+    assert response.json[0]["client"] == saved_sla_configuration_item.current_version.client
+    assert response.json[0]["measurement_unit"] == saved_sla_configuration_item.current_version.measurement_unit
+    assert response.json[0]["measurement_value"] == saved_sla_configuration_item.current_version.measurement_value

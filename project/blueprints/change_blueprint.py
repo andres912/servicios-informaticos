@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from project.controllers.change_controller import ChangeController
 from project.helpers.change_request_helper import ChangeRequestHelper
+from project.helpers.request_helpers import ErrorHandler
 from project.schemas.schemas import ChangeSchema
 
 CHANGES_ENDPOINT = "/changes"
@@ -73,6 +74,14 @@ def create_change():
     change = ChangeController.create(**correct_request)
     return change_schema.dump(change)
 
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>", methods=["PATCH"])
+# @user_required([EDIT_DISTRIBUTOR])
+def patch_change(change_id):
+    """
+    PATCH endpoint to update a new Change.
+    """
+    change = ChangeController.update(id=change_id, **request.json)
+    return jsonify(change_schema.dump(change))
 
 @change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>", methods=["DELETE"])
 # @user_required([EDIT_DISTRIBUTOR])
@@ -96,3 +105,42 @@ def delete_all():
     changes_amount = ChangeController.count()
     ChangeController.delete_all()
     return f"{changes_amount} changes have been deleted"
+
+
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>/apply", methods=["POST"])
+def apply_change(change_id):
+    """
+    Applies change
+    """
+    try:
+        ChangeController.apply_change(int(change_id))
+        return "Cambio aplicado", 200
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>/discard", methods=["POST"])
+def discard_change(change_id):
+    """
+    DiscardsChange
+    """
+    try:
+        ChangeController.discard_change(int(change_id))
+        return "Cambio rechazado", 200
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+@change_blueprint.route(
+    f"{CHANGES_ENDPOINT}/<change_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_change(change_id):
+    """
+    Add comment to an change
+    """
+    comment = request.json["comment"]
+    created_by = request.json["created_by"]
+    ChangeController.add_comment_to_solvable(
+        solvable_id=change_id, comment_message=comment, created_by=created_by
+    )
+    return jsonify({"message": "Comment added"})

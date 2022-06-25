@@ -20,6 +20,11 @@ from project.models.role import Role
 from project.models.user import User
 from project.models.change import Change
 from project.models.known_error import KnownError
+from project.models.versions.hardware_item_version import HardwareItemVersion
+from project.models.versions.item_version import ItemVersion
+from project.models.versions.sla_item_version import SLAItemVersion
+from project.models.versions.software_item_version import SoftwareItemVersion
+from project.models.versions.known_error_version import KnownErrorVersion
 
 DATE_FORMAT = "%d/%m/%Y"
 DATETIME_FORMAT = "%d/%m/%Y %H:%M"
@@ -45,19 +50,20 @@ class SolvableSchema(BaseModelSchema):
             "created_by",
             "taken_by",
             "is_blocked",
-            "comments"
+            "comments",
         )
         include_relationships = True
         load_instance = True
 
     comments = fields.Nested("CommentSchema", many=True)
 
+
 class IncidentSchema(SolvableSchema):
     class Meta:
         fields = SolvableSchema.Meta.fields + (
             "hardware_configuration_items",
             "software_configuration_items",
-            "sla_configuration_items"
+            "sla_configuration_items",
         )
         model = Incident
         include_relationships = True
@@ -66,24 +72,23 @@ class IncidentSchema(SolvableSchema):
     hardware_configuration_items = fields.Nested(
         "HardwareConfigurationItemSchema",
         many=True,
-        only={"name", "description", "type"},
+        exclude=["versions"]
     )
     software_configuration_items = fields.Nested(
         "SoftwareConfigurationItemSchema",
         many=True,
-        only={"name", "description", "type"},
+        exclude=["versions"]
     )
     sla_configuration_items = fields.Nested(
         "SLAConfigurationItemSchema",
         many=True,
-        only={"name", "description", "service_type"},
+        exclude=["versions"]
     )
+
 
 class AlternativeIncidentSchema(SolvableSchema):
     class Meta:
-        fields = SolvableSchema.Meta.fields + (
-            "configuration_items",
-        )
+        fields = SolvableSchema.Meta.fields + ("configuration_items",)
         model = Incident
         include_relationships = True
         load_instance = True
@@ -92,7 +97,7 @@ class AlternativeIncidentSchema(SolvableSchema):
 
     def get_configuration_items(self, obj: Incident) -> list:
         return [
-            {"id": item.id, "name": item.name, "type": item.item_class}
+            {"id": item.id, "name": item.current_version.name, "type": item.item_type}
             for item in obj.hardware_configuration_items
             + obj.software_configuration_items
             + obj.sla_configuration_items
@@ -101,11 +106,7 @@ class AlternativeIncidentSchema(SolvableSchema):
 
 class ProblemSchema(SolvableSchema):
     class Meta:
-        fields = SolvableSchema.Meta.fields + (
-            "incidents",
-            "impact",
-            "cause"
-        )
+        fields = SolvableSchema.Meta.fields + ("incidents", "impact", "cause")
         model = Problem
         include_relationships = True
         load_instance = True
@@ -170,59 +171,53 @@ class UserSchema(BaseModelSchema):
     role = fields.Nested(RoleSchema(only=("id", "name")), dump_only=True)
 
 
-class ConfigurationItemSchema(BaseModelSchema):
+class ItemVersionSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
             "name",
             "description",
-            "version",
-            "item_family_id",
-            "item_class"
-
+            "version_number",
+            "is_draft",
+            "change_id",
+            "change",
         )
-        include_relationships = True
+        include_relationships = False
         load_instance = True
-    versions = fields.fields.Method("get_versions")
 
-    def get_versions(self, obj: ConfigurationItem) -> list:
-        return [
-            {"id": version.id, "version": version.version, "name": version.name, "description": version.description}
-            for version in obj.get_versions() if version.id != obj.id
-        ]
+    change = fields.Nested("ChangeSchema", only=("id", "description"))
 
 
-class HardwareConfigurationItemSchema(ConfigurationItemSchema):
+class HardwareItemVersionSchema(ItemVersionSchema):
     class Meta:
-        fields = ConfigurationItemSchema.Meta.fields + (
+        fields = ItemVersionSchema.Meta.fields + (
             "type",
             "manufacturer",
             "serial_number",
             "price",
             "purchase_date",
-            "versions"
         )
-        model = HardwareConfigurationItem
-        include_relationships = True
+        model = HardwareItemVersion
+        include_relationships = False
         load_instance = True
+
     purchase_date = fields.fields.DateTime(format=DATE_FORMAT)
 
 
-class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
+class SoftwareItemVersionSchema(ItemVersionSchema):
     class Meta:
-        fields = ConfigurationItemSchema.Meta.fields + (
+        fields = ItemVersionSchema.Meta.fields + (
             "type",
             "provider",
             "software_version",
-            "versions"
         )
-        model = SoftwareConfigurationItem
+        model = SoftwareItemVersion
         include_relationships = True
         load_instance = True
 
 
-class SLAConfigurationItemSchema(ConfigurationItemSchema):
+class SLAItemVersionSchema(ItemVersionSchema):
     class Meta:
-        fields = ConfigurationItemSchema.Meta.fields + (
+        fields = ItemVersionSchema.Meta.fields + (
             "service_type",
             "service_manager",
             "client",
@@ -231,29 +226,168 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
             "measurement_unit",
             "measurement_value",
             "is_crucial",
-            "versions"
+            "draft"
         )
-        model = SLAConfigurationItem
+        model = SLAItemVersion
         include_relationships = True
         load_instance = True
 
     starting_date = fields.fields.DateTime(format=DATE_FORMAT)
     ending_date = fields.fields.DateTime(format=DATE_FORMAT)
 
-class ChangeSchema(BaseModelSchema):
+
+class ReducedConfigurationItemSchema(BaseModelSchema):
+    class Meta:
+        fields = ("name",)
+        include_relationships = True
+        load_instance = True
+    
+    name = fields.fields.Method("get_name")
+
+    def get_name(self, obj: ConfigurationItem) -> str:
+        return obj.current_version.name
+
+class ConfigurationItemSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
+            "last_version",
+            "item_type",
+            "draft_change_id",
+            "draft_id",
+            "current_version_id"
+        )
+        include_relationships = True
+        load_instance = True
+
+    draft_change_id = fields.fields.Method("get_draft_change_id")
+    draft = fields.Nested(ItemVersionSchema, dump_only=True)
+
+    def get_draft_change_id(self, obj: ConfigurationItem) -> str:
+        draft = obj.draft
+        return draft.change_id if draft else None
+    
+    @post_dump(pass_many=True)
+    def rearrange_info(self, data, many, **kwargs):
+        """
+        Needy to use versions as a list object when dumping ConfigurationItem into json.
+        """
+        def remove_current_version_and_draft_from_versions(item_data):
+            if not "versions" in item_data:
+                return
+            versions = item_data["versions"][:]
+            for version in versions:
+                if version["id"] == item_data["current_version_id"] or version["is_draft"] == True:
+                    item_data["versions"].remove(version)
+
+        def extract_version_info(item_data, attach_to_draft=False):
+            field_to_attach = "current_version" if not attach_to_draft else "draft"
+            if not item_data[field_to_attach]:
+                del item_data[field_to_attach]
+                return
+            for key in item_data[field_to_attach]:
+                if key == "id":
+                    continue
+                elif key == "version_number" and not attach_to_draft:
+                    item_data["current_version_number"] = item_data["current_version"][key]
+                else:
+                    item_data[key] = item_data[field_to_attach][key]
+            del item_data[field_to_attach]
+
+        # if current_version is excluded, the item is attached to its draft
+        if many:
+            for item_data in data:
+                attach_to_draft = item_data["draft_id"] != None and "current_version" in self.exclude
+                extract_version_info(item_data, attach_to_draft)
+                remove_current_version_and_draft_from_versions(item_data)
+        else:
+            attach_to_draft = data["draft_id"] != None and "current_version" in self.exclude
+            extract_version_info(data, attach_to_draft)
+            remove_current_version_and_draft_from_versions(data)
+        return data
+
+
+class HardwareConfigurationItemSchema(ConfigurationItemSchema):
+    class Meta:
+        fields = ConfigurationItemSchema.Meta.fields + (
+            "current_version",
+            "draft",
+            "versions"
+        )
+        model = HardwareConfigurationItem
+        include_relationships = True
+        load_instance = True
+
+    purchase_date = fields.fields.DateTime(format=DATE_FORMAT)
+    current_version = fields.Nested("HardwareItemVersionSchema")
+    draft = fields.Nested("HardwareItemVersionSchema")
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+
+
+class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
+    class Meta:
+        fields = ConfigurationItemSchema.Meta.fields + (
+            "current_version",
+            "draft",
+            "versions"
+        )
+        model = SoftwareConfigurationItem
+        include_relationships = True
+        load_instance = True
+
+    current_version = fields.Nested("SoftwareItemVersionSchema")
+    draft = fields.Nested("SoftwareItemVersionSchema")
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+    
+
+class SLAConfigurationItemSchema(ConfigurationItemSchema):
+    class Meta:
+        fields = ConfigurationItemSchema.Meta.fields + (
+            "current_version",
+            "draft",
+            "versions"
+        )
+        model = SLAConfigurationItem
+        include_relationships = True
+        load_instance = True
+    
+    current_version = fields.Nested("SLAItemVersionSchema")
+    draft = fields.Nested("SLAItemVersionSchema")
+    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+
+
+class ChangeSchema(SolvableSchema):
+    class Meta:
+        fields = SolvableSchema.Meta.fields + (
             "description",
             "priority",
             "status",
             "created_by",
             "taken_by",
             "incidents",
-            "problems"
+            "problems",
+            "hardware_configuration_items",
+            "software_configuration_items",
+            "sla_configuration_items",
         )
         model = Change
         include_relationships = True
         load_instance = True
+    
+    hardware_configuration_items = fields.Nested(
+        "HardwareConfigurationItemSchema",
+        many=True,
+        exclude=["versions"]
+    )
+    software_configuration_items = fields.Nested(
+        "SoftwareConfigurationItemSchema",
+        many=True,
+        exclude=["versions"]
+    )
+    sla_configuration_items = fields.Nested(
+        "SLAConfigurationItemSchema",
+        many=True,
+        exclude=["versions"]
+    )
 
     incidents = fields.Nested(
         "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
@@ -263,15 +397,15 @@ class ChangeSchema(BaseModelSchema):
         "ProblemSchema", many=True, only={"id", "description", "status", "priority"}
     )
 
+
 class KnownErrorSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
-            "description",
-            "status",
-            "created_by",
-            "solution",
-            "taken_by",
-            "incidents"
+            "current_version",
+            "current_version_id",
+            "last_version",
+            "versions",
+            "incidents",
         )
         model = KnownError
         include_relationships = True
@@ -281,12 +415,62 @@ class KnownErrorSchema(BaseModelSchema):
         "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
     )
 
+    current_version = fields.Nested("KnownErrorVersionSchema")
+    versions = fields.Nested("KnownErrorVersionSchema", many=True)
+
+    @post_dump(pass_many=True)
+    def rearrange_info(self, data, many, **kwargs):
+        """
+        Needy to use versions as a list object when dumping KnownError into json.
+        """
+        def remove_current_version_from_versions(item_data):
+            if not "versions" in item_data:
+                return
+            versions = item_data["versions"][:]
+            for version in versions:
+                if version["id"] == item_data["current_version_id"]:
+                    item_data["versions"].remove(version)
+
+        def extract_version_info(item_data):
+            field_to_attach = "current_version"
+            if not item_data[field_to_attach]:
+                del item_data[field_to_attach]
+                return
+            for key in item_data[field_to_attach]:
+                if key == "id":
+                    continue
+                elif key == "version_number":
+                    item_data["current_version_number"] = item_data["current_version"][key]
+                else:
+                    item_data[key] = item_data[field_to_attach][key]
+            del item_data[field_to_attach]
+
+        #todo ver la importancia de esta parte
+        # if current_version is excluded, the item is attached to its draft
+        if many:
+            for item_data in data:
+                extract_version_info(item_data)
+                remove_current_version_from_versions(item_data)
+        else:
+            extract_version_info(data)
+            remove_current_version_from_versions(data)
+        return data
+
+class KnownErrorVersionSchema(BaseModelSchema):
+    class Meta:
+        fields = BaseModelSchema.Meta.fields + (
+            "description",
+            "solution",
+            "version_number",
+            "created_by"
+        )
+        model = KnownErrorVersion
+        include_relationships = False
+        load_instance = True
+
+
 class CommentSchema(BaseModelSchema):
     class Meta:
-        fields = (
-            "created_at",
-            "created_by",
-            "text"
-        )
+        fields = ("created_at", "created_by", "text")
 
     created_at = fields.fields.DateTime(format=DATETIME_FORMAT)

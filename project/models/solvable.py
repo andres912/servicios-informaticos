@@ -22,7 +22,7 @@ class Solvable(BaseModel):
 
     @declared_attr
     def created_by(cls):
-        return db.Column(db.Integer, ForeignKey("user.username"))
+        return db.Column(db.String(30), ForeignKey("user.username"))
 
     @declared_attr
     def taken_by(cls):

@@ -82,7 +82,6 @@ def create_incident():
     """
     POST endpoint to create a new Incident.
     """
-
     correct_request = IncidentRequestHelper.create_incident_request(request.json)
     incident = IncidentController.create(**correct_request)
     return incident_schema.dump(incident)
@@ -128,10 +127,10 @@ def get_incidents_names():
     """
     GET endpoint to get incidents names
     """
-    incidents = IncidentController.load_all()
+    incidents = IncidentController.load_unresolved()
     response = {
         "incidents": [
-            {"name": incident.description, "value": incident.description}
+            {"value": incident.description, "label": incident.description}
             for incident in incidents
         ]
     }

@@ -1,12 +1,3 @@
-from project.controllers.configuration_item_controller.hardware_ci_controller import (
-    HardwareConfigurationItemController,
-)
-from project.controllers.configuration_item_controller.sla_ci_controller import (
-    SLAConfigurationItemController,
-)
-from project.controllers.configuration_item_controller.software_ci_controller import (
-    SoftwareConfigurationItemController,
-)
 from project.controllers.incident_controller import IncidentController
 from project.models.exceptions import ObjectNotFoundException
 

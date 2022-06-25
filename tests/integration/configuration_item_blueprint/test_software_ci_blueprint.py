@@ -104,9 +104,9 @@ def test_software_ci_get_all(
 
     assert response.status_code == 200
     assert len(response.json) == 1
-    assert response.json[0]["id"] == saved_software_configuration_item.id
-    assert response.json[0]["name"] == saved_software_configuration_item.name
-    assert response.json[0]["description"] == saved_software_configuration_item.description
-    assert response.json[0]["type"] == saved_software_configuration_item.type
-    assert response.json[0]["provider"] == saved_software_configuration_item.provider
-    assert response.json[0]["software_version"] == saved_software_configuration_item.software_version
+    assert response.json[0]["id"] == saved_software_configuration_item.current_version.id
+    assert response.json[0]["name"] == saved_software_configuration_item.current_version.name
+    assert response.json[0]["description"] == saved_software_configuration_item.current_version.description
+    assert response.json[0]["type"] == saved_software_configuration_item.current_version.type
+    assert response.json[0]["provider"] == saved_software_configuration_item.current_version.provider
+    assert response.json[0]["software_version"] == saved_software_configuration_item.current_version.software_version

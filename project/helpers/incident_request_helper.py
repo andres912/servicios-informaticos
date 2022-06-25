@@ -15,19 +15,22 @@ class IncidentRequestHelper:
     def get_configuration_item_id(
         cls, item_name, hardware_list, software_list, sla_list
     ):
-        hardware_ci_item = HardwareConfigurationItemController.load_by_name(item_name)
-        if hardware_ci_item:
-            hardware_list.append(hardware_ci_item)
-            return
-        software_ci_item = SoftwareConfigurationItemController.load_by_name(item_name)
-        if software_ci_item:
-            software_list.append(software_ci_item)
-            return
-        sla_ci_item = SLAConfigurationItemController.load_by_name(item_name)
-        if sla_ci_item:
-            sla_list.append(sla_ci_item)
-            return
-        raise ObjectNotFoundException()
+        try: #try hardware
+            hardware_ci_item = HardwareConfigurationItemController.load_by_name(item_name)
+            if hardware_ci_item:
+                hardware_list.append(hardware_ci_item)
+                return
+        except ObjectNotFoundException:
+            try: #no success, try software
+                software_ci_item = SoftwareConfigurationItemController.load_by_name(item_name)
+                if software_ci_item:
+                    software_list.append(software_ci_item)
+                    return
+            except ObjectNotFoundException: #last try
+                    sla_ci_item = SLAConfigurationItemController.load_by_name(item_name)
+                    if sla_ci_item:
+                        sla_list.append(sla_ci_item)
+                        return
 
     @classmethod
     def get_configuration_items(cls, item_names):

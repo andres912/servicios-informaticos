@@ -2,20 +2,25 @@ from flask import Blueprint, jsonify, request
 from project.controllers.configuration_item_controller.sla_ci_controller import (
     SLAConfigurationItemController,
 )
-from project.helpers.request_helpers import ErrorHandler, RequestHelper, RequestValidator
+from project.helpers.request_helpers import (
+    ErrorHandler,
+    RequestHelper,
+    RequestValidator,
+)
 from project.models.exceptions import (
     ExtraFieldsException,
     MissingFieldsException,
     ObjectNotFoundException,
 )
-from project.schemas.schemas import SLAConfigurationItemSchema
+from project.schemas.schemas import SLAConfigurationItemSchema, SLAItemVersionSchema
 
 SLA_CI_ITEMS_ENDPOINT = "/configuration-items/sla"
 
 sla_ci_blueprint = Blueprint("sla_ci_blueprint", __name__)
 
 item_schema = SLAConfigurationItemSchema()
-items_schema = SLAConfigurationItemSchema(many=True)
+items_schema = SLAConfigurationItemSchema(many=True, exclude=["versions"])
+draft_schema = SLAConfigurationItemSchema(exclude=["current_version"])
 
 POST_FIELDS = {
     "name",
@@ -122,6 +127,7 @@ def restore_item_version(item_id):
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
 
+
 @sla_ci_blueprint.route(f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/version", methods=["POST"])
 def create_item_version(item_id):
     """
@@ -129,7 +135,73 @@ def create_item_version(item_id):
     """
     try:
         correct_request = RequestHelper.correct_dates(request.json)
-        new_item = SLAConfigurationItemController.create_new_item_version(item_id, **correct_request)
+        new_item = SLAConfigurationItemController.create_new_item_version(
+            item_id, **correct_request
+        )
         return jsonify(item_schema.dump(new_item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+def update_item_draft(item, change_id, request_json):
+    draft = item.draft
+    if change_id != draft.change_id:
+        return (
+            jsonify(
+                {"errors": {"change_id": "Draft does not match requested change_id"}}
+            ),
+            400,
+        )
+
+    correct_request = RequestHelper.correct_dates(request_json)
+    SLAConfigurationItemController.update_item_draft(item.id, **correct_request)
+
+
+def create_new_draft(item, change_id, request_json):
+    correct_request = RequestHelper.correct_dates(request_json)
+    draft = SLAConfigurationItemController.create_draft(item.id, change_id, **correct_request)
+    return draft
+
+
+@sla_ci_blueprint.route(
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["POST"]
+)
+def create_item_draft(item_id):
+    try:
+        change_id = int(request.args["change_id"])
+        item = SLAConfigurationItemController.load_by_id(item_id)
+
+        if item.has_draft():
+            update_item_draft(item, change_id, request.json)
+            return jsonify(draft_schema.dump(item))
+        else:
+            create_new_draft(item, change_id, request.json)
+            return jsonify(draft_schema.dump(item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+@sla_ci_blueprint.route(
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/draft", methods=["GET"]
+)
+def get_item_draft(item_id):
+    try:
+        item = SLAConfigurationItemController.load_by_id(item_id)
+        if item.has_draft():
+            change_id = int(request.args["change_id"])
+            if change_id != item.draft.change_id:
+                return (
+                    jsonify(
+                        {
+                            "errors": {
+                                "change_id": "Draft does not match requested change_id"
+                            }
+                        }
+                    ),
+                    400,
+                )
+            return jsonify(draft_schema.dump(item))
+        return jsonify(item_schema.dump(item))
+
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
