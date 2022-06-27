@@ -22,6 +22,7 @@ class HardwareConfigurationItem(ConfigurationItem):
         "HardwareItemVersion", foreign_keys=[current_version_id]
     )
     draft = db.relationship("HardwareItemVersion", foreign_keys=[draft_id])
+    incidents = db.relationship("Incident", secondary="hardware_ci_item_incident")
 
     def __init__(self, current_version_id: int = None, **kwargs):
         super().__init__("Hardware")

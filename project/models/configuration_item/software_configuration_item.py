@@ -12,6 +12,7 @@ class SoftwareConfigurationItem(ConfigurationItem):
     versions = db.relationship("SoftwareItemVersion", backref="configuration_item", lazy=True, foreign_keys="SoftwareItemVersion.item_id")
     current_version = db.relationship("SoftwareItemVersion", foreign_keys=[current_version_id])
     draft = db.relationship("SoftwareItemVersion", foreign_keys=[draft_id])
+    incidents = db.relationship("Incident", secondary="software_ci_item_incident")
 
     def __init__(self, current_version_id: int = None, **kwargs):
         super().__init__("Software")

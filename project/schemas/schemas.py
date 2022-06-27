@@ -17,6 +17,7 @@ from project.models.enableable_object import EnableableObject
 from project.models.incident import Incident
 from project.models.problem import Problem
 from project.models.role import Role
+from project.models.solvable import Solvable
 from project.models.user import User
 from project.models.change import Change
 from project.models.known_error import KnownError
@@ -51,11 +52,18 @@ class SolvableSchema(BaseModelSchema):
             "taken_by",
             "is_blocked",
             "comments",
+            "solving_time"
         )
         include_relationships = True
         load_instance = True
 
     comments = fields.Nested("CommentSchema", many=True)
+    solving_time = fields.fields.Method("get_solving_time")
+
+    def get_solving_time(self, obj: Solvable) -> str:
+        if obj.solved_at:
+            return (obj.solved_at - obj.created_at).days
+        return None
 
 
 class IncidentSchema(SolvableSchema):

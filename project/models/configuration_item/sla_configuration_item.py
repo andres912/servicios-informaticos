@@ -12,11 +12,9 @@ class SLAConfigurationItem(ConfigurationItem):
     versions = db.relationship("SLAItemVersion", backref="configuration_item", lazy=True, foreign_keys="SLAItemVersion.item_id")
     current_version = db.relationship("SLAItemVersion", foreign_keys=[current_version_id])
     draft = db.relationship("SLAItemVersion", foreign_keys=[draft_id])
+    incidents = db.relationship("Incident", secondary="sla_ci_item_incident")
 
     def __init__(self, current_version_id: int = None, **kwargs):
         super().__init__("SLA")
         self.current_version_id = current_version_id
         self.draft_id = None
-
-    
-    

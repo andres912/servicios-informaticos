@@ -25,8 +25,6 @@ def user_required(roles_allowed: List = None):
     curl --request GET 'localhost:5000/profile' \
          --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 \
          .eyJpZCI6MSwiZXhwIjoxNjEzOTY4MzYzfQ.w2En8xdiRNTRQb6lFHci0j6z1fsVVPYCUYiux8qoOnY'
-
-    To debug the token use https://jwt.io/#debugger-io private key in current_app.config["SECRET_KEY"]
     """
 
     def token_required(f):

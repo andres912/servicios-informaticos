@@ -6,7 +6,15 @@ from project.models.versions.sla_item_version import SLAItemVersion
 from project.models.versions.item_version import ItemVersion
 from project.models.base_model import BaseModel
 from project import db
-
+from project.models.association_tables.configuration_item_incident import (
+    HardwareConfigurationItemIncident,
+)
+from project.models.association_tables.configuration_item_incident import (
+    SoftwareConfigurationItemIncident,
+)
+from project.models.association_tables.configuration_item_incident import (
+    SLAConfigurationItemIncident,
+)
 
 class ConfigurationItem(BaseModel):
     __abstract__ = True
@@ -60,11 +68,3 @@ class ConfigurationItem(BaseModel):
 
     def restore_version(self, version_id):
         self.current_version_id = version_id
-
-    def get_items(self):
-        return (
-            self.hardware_configuration_items
-            + self.software_configuration_items
-            + self.sla_configuration_items
-        )
-
