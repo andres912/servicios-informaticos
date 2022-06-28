@@ -122,7 +122,8 @@ def restore_item_version(item_id):
     """
     try:
         version = request.json.get("version")
-        item = SLAConfigurationItemController.restore_item_version(item_id, version)
+        change_id = request.json.get("change_id")
+        item = SLAConfigurationItemController.restore_item_version(item_id, version, change_id)
         return jsonify(item_schema.dump(item))
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
@@ -208,7 +209,7 @@ def get_item_draft(item_id):
 
 
 @sla_ci_blueprint.route(
-    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/check-version/<version_number>", methods=["GET"]
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/version/<version_number>", methods=["GET"]
 )
 def check_item_version(item_id, version_number):
     try:

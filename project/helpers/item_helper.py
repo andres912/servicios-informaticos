@@ -1,4 +1,6 @@
 from datetime import datetime
+from project.models.versions.hardware_item_version import HardwareItemVersion
+from project.models.versions.sla_item_version import SLAItemVersion
 from project.models.versions.software_item_version import SoftwareItemVersion
 
 
@@ -38,7 +40,7 @@ class ItemHelper:
 
     @classmethod
     def create_hardware_restore_draft(cls, item_id, change_id, restore_version_id):
-        restore_draft = SoftwareItemVersion(
+        restore_draft = HardwareItemVersion(
             item_id=item_id,
             name="Restore",
             description="Restore",
@@ -47,6 +49,7 @@ class ItemHelper:
             is_restoring_draft=True,
             restore_version_id=restore_version_id,
             manufacturer="Restore",
+            type="Restore",
             serial_number="Restore",
             price=0,
             purchase_date=datetime.now()
@@ -56,7 +59,7 @@ class ItemHelper:
 
     @classmethod
     def create_sla_restore_draft(cls, item_id, change_id, restore_version_id):
-        restore_draft = SoftwareItemVersion(
+        restore_draft = SLAItemVersion(
             item_id=item_id,
             name="Restore",
             description="Restore",

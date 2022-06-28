@@ -100,19 +100,6 @@ def update_item(item_id):
     f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>", methods=["DELETE"]
 )
 def delete_item(item_id):
-    """
-    PUT endpoint to update a Hardw@sla_ci_blueprint.route(
-    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/check-version/<version_number>", methods=["GET"]
-)
-def check_item_version(item_id, version_number):
-    try:
-        item_version = SLAConfigurationItemController.load_item_version(item_id, version_number)
-        item = SLAConfigurationItemController.load_by_id(item_id)
-        item.current_version = item_version # no consecuences if it is not being saved in the db
-        return jsonify(item_schema.dump(item)) 
-    except Exception as e:
-        return ErrorHandler.determine_http_error_response(e)are Configuration Item
-    """
     try:
         item = HardwareConfigurationItemController.delete(id=item_id)
     except ObjectNotFoundException as e:
@@ -138,11 +125,13 @@ def restore_item_version(item_id):
     """
     try:
         version = request.json.get("version")
+        change_id = request.json.get("change_id")
         item = HardwareConfigurationItemController.restore_item_version(
-            item_id, version
+            item_id, version, change_id
         )
         return jsonify(item_schema.dump(item))
     except Exception as e:
+        print(e)
         return ErrorHandler.determine_http_error_response(e)
 
 
@@ -230,7 +219,7 @@ def get_item_draft(item_id):
 
 
 @hardware_ci_blueprint.route(
-    f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/check-version/<version_number>", methods=["GET"]
+    f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/version/<version_number>", methods=["GET"]
 )
 def check_item_version(item_id, version_number):
     try:
@@ -238,9 +227,8 @@ def check_item_version(item_id, version_number):
             item_id, version_number
         )
         item = HardwareConfigurationItemController.load_by_id(item_id)
-        item.current_version = (
-            item_version
-        )  # no consecuences if it is not being saved in the db
+        item.current_version = item_version # no problem, not being saved in the DB
+        item.current_version_number = version_number
         return jsonify(item_schema.dump(item))
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
