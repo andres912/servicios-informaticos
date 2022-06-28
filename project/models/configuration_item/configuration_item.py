@@ -50,6 +50,10 @@ class ConfigurationItem(BaseModel):
         if change_id != draft.change_id:
             raise ChangeApplicationError(item_id=self.id, change_id=change_id)
 
+        if draft.is_restoring_draft:
+            self.restore_version(draft)
+            return
+
         self.current_version_id = draft.id
         self.draft.is_draft = False
         self.draft_id = None
@@ -66,5 +70,9 @@ class ConfigurationItem(BaseModel):
         db.session.commit()
         draft.force_delete()
 
-    def restore_version(self, version_id):
+    def restore_version(self, draft):
+        version_id = draft.restore_version_id
         self.current_version_id = version_id
+        self.draft_id = None
+        db.session.commit()
+        draft.force_delete()

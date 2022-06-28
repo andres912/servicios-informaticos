@@ -16,6 +16,8 @@ class ItemVersion(BaseModel):
     description = db.Column(db.String(500), nullable=False)
     version_number = db.Column(db.SmallInteger, default=1, nullable=False)
     is_draft = db.Column(db.Boolean, default=False, nullable=False)
+    is_restoring_draft = db.Column(db.Boolean, default=False, nullable=True)
+    restore_version_id = db.Column(db.Integer, default=None, nullable = True)
 
     @declared_attr
     def change_id(cls):
@@ -29,6 +31,8 @@ class ItemVersion(BaseModel):
         version_number: int = 1,
         is_draft: bool = False,
         change_id: int = None,
+        is_restoring_draft: bool = False,
+        restore_version_id: int = None,
         
     ):
         super().__init__()
@@ -38,6 +42,8 @@ class ItemVersion(BaseModel):
         self.item_id = item_id
         self.is_draft = is_draft
         self.change_id = change_id
+        self.is_restoring_draft = is_restoring_draft
+        self.restore_version_id = restore_version_id
 
     def _update(
         self,

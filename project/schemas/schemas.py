@@ -188,11 +188,17 @@ class ItemVersionSchema(BaseModelSchema):
             "is_draft",
             "change_id",
             "change",
+            "is_restoring_draft",
+            "restore_version_id",
         )
         include_relationships = False
         load_instance = True
 
     change = fields.Nested("ChangeSchema", only=("id", "description"))
+    version_number = fields.fields.Method("get_version_number")
+
+    def get_version_number(self, obj: ItemVersion) -> str:
+        return "Borrador" if obj.is_draft else obj.version_number
 
 
 class HardwareItemVersionSchema(ItemVersionSchema):
@@ -262,7 +268,7 @@ class ConfigurationItemSchema(BaseModelSchema):
             "item_type",
             "draft_change_id",
             "draft_id",
-            "current_version_id"
+            "current_version_id",
         )
         include_relationships = True
         load_instance = True
@@ -279,12 +285,14 @@ class ConfigurationItemSchema(BaseModelSchema):
         """
         Needy to use versions as a list object when dumping ConfigurationItem into json.
         """
-        def remove_current_version_and_draft_from_versions(item_data):
+        def remove_current_version_and_draft_from_versions(item_data, attach_to_draft):
             if not "versions" in item_data:
                 return
             versions = item_data["versions"][:]
             for version in versions:
-                if version["id"] == item_data["current_version_id"] or version["is_draft"] == True:
+                if version["is_draft"]:
+                    item_data["versions"].remove(version)
+                if version["id"] == item_data["current_version_id"] and not attach_to_draft:
                     item_data["versions"].remove(version)
 
         def extract_version_info(item_data, attach_to_draft=False):
@@ -300,17 +308,21 @@ class ConfigurationItemSchema(BaseModelSchema):
                 else:
                     item_data[key] = item_data[field_to_attach][key]
             del item_data[field_to_attach]
+            if item_data["is_draft"]:
+                item_data["current_version_number"] = "Borrador"
+            if "draft" in item_data and item_data["draft"]:
+                item_data["is_restoring_draft"] = item_data["draft"]["is_restoring_draft"]
 
         # if current_version is excluded, the item is attached to its draft
         if many:
             for item_data in data:
                 attach_to_draft = item_data["draft_id"] != None and "current_version" in self.exclude
                 extract_version_info(item_data, attach_to_draft)
-                remove_current_version_and_draft_from_versions(item_data)
+                remove_current_version_and_draft_from_versions(item_data, attach_to_draft)
         else:
             attach_to_draft = data["draft_id"] != None and "current_version" in self.exclude
             extract_version_info(data, attach_to_draft)
-            remove_current_version_and_draft_from_versions(data)
+            remove_current_version_and_draft_from_versions(data, attach_to_draft)
         return data
 
 

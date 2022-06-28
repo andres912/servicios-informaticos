@@ -205,3 +205,16 @@ def get_item_draft(item_id):
 
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
+
+@sla_ci_blueprint.route(
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/check-version/<version_number>", methods=["GET"]
+)
+def check_item_version(item_id, version_number):
+    try:
+        item_version = SLAConfigurationItemController.load_item_version(item_id, version_number)
+        item = SLAConfigurationItemController.load_by_id(item_id)
+        item.current_version = item_version # no consecuences if it is not being saved in the db
+        return jsonify(item_schema.dump(item)) 
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)

@@ -70,9 +70,22 @@ def create_change():
     """
     POST endpoint to create a new Change.
     """
-    correct_request = ChangeRequestHelper.create_change_request(request.json)
-    change = ChangeController.create(**correct_request)
-    return change_schema.dump(change)
+    try:
+        correct_request = ChangeRequestHelper.create_change_request(request.json)
+        change = ChangeController.create(**correct_request)
+        return change_schema.dump(change)
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/solved", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_solved_incidents():
+    """
+    GET endpoint to get all Incidents.
+    """
+    changes = ChangeController.load_solved()
+    return jsonify(changes_schema.dump(changes))
+
 
 @change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>", methods=["PATCH"])
 # @user_required([EDIT_DISTRIBUTOR])

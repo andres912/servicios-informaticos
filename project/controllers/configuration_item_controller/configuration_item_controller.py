@@ -1,7 +1,9 @@
+from copy import copy
 from typing import List
 
 from sqlalchemy import text
 from project.controllers.base_controller import BaseController
+from project.helpers.item_helper import ItemHelper
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
 from project.models.exceptions import (
@@ -66,16 +68,24 @@ class ConfigurationItemController(BaseController):
         return cls.object_class.query.filter_by(name=item_name).first()
 
     @classmethod
-    def restore_item_version(cls, item_id: int, item_version: int):
-        item = cls.load_by_id(item_id)
+    def restore_item_version(cls, item_id: int, version_number: int, change_id: int):
         item_version = cls.object_version_class.query.filter_by(
-            item_id=item_id, version_number=item_version
+            item_id=item_id, version_number=version_number
         ).first()
         if not item_version:
             raise ItemVersionNotFoundException(
-                item_id=item_id, version_number=item_version
+                item_id=item_id, item_version=item_version
             )
-        item.restore_version(item_version.id)
+
+        version_id = item_version.id
+        item = cls.load_by_id(item_id)
+        restore_draft = ItemHelper.create_restore_draft(item, change_id, version_id)
+        restore_draft.change_id = change_id
+        db.session.add(restore_draft)
+        db.session.commit()
+
+        item = cls.load_by_id(item_id)
+        item.draft_id = restore_draft.id
         db.session.commit()
         return item
 
@@ -110,7 +120,7 @@ class ConfigurationItemController(BaseController):
         kwargs["item_id"] = item_id
         kwargs["is_draft"] = True
         kwargs["change_id"] = change_id
-        #del kwargs["draft_change_id"]
+        # del kwargs["draft_change_id"]
 
         new_version = cls.object_version_class(**kwargs)
         db.session.add(new_version)
@@ -147,3 +157,14 @@ class ConfigurationItemController(BaseController):
             raise ObjectNotFoundException(object_name="Item", object_id=object_name)
         id = item[0]
         return cls.load_by_id(id)
+
+    @classmethod
+    def load_item_version(cls, item_id: int, version_number: int):
+        item_version = cls.object_version_class.query.filter_by(
+            item_id=item_id, version_number=version_number
+        ).first()
+        if not item_version:
+            raise ItemVersionNotFoundException(
+                item_id=item_id, version_number=version_number
+            )
+        return item_version

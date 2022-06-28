@@ -101,7 +101,17 @@ def update_item(item_id):
 )
 def delete_item(item_id):
     """
-    PUT endpoint to update a Hardware Configuration Item
+    PUT endpoint to update a Hardw@sla_ci_blueprint.route(
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/check-version/<version_number>", methods=["GET"]
+)
+def check_item_version(item_id, version_number):
+    try:
+        item_version = SLAConfigurationItemController.load_item_version(item_id, version_number)
+        item = SLAConfigurationItemController.load_by_id(item_id)
+        item.current_version = item_version # no consecuences if it is not being saved in the db
+        return jsonify(item_schema.dump(item)) 
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)are Configuration Item
     """
     try:
         item = HardwareConfigurationItemController.delete(id=item_id)
@@ -169,7 +179,9 @@ def update_item_draft(item, change_id, request_json):
 
 def create_new_draft(item, change_id, request_json):
     correct_request = RequestHelper.correct_dates(request_json)
-    draft = HardwareConfigurationItemController.create_draft(item.id, change_id, **correct_request)
+    draft = HardwareConfigurationItemController.create_draft(
+        item.id, change_id, **correct_request
+    )
     return draft
 
 
@@ -215,3 +227,21 @@ def get_item_draft(item_id):
 
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
+
+@hardware_ci_blueprint.route(
+    f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/check-version/<version_number>", methods=["GET"]
+)
+def check_item_version(item_id, version_number):
+    try:
+        item_version = HardwareConfigurationItemController.load_item_version(
+            item_id, version_number
+        )
+        item = HardwareConfigurationItemController.load_by_id(item_id)
+        item.current_version = (
+            item_version
+        )  # no consecuences if it is not being saved in the db
+        return jsonify(item_schema.dump(item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
