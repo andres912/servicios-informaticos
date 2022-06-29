@@ -9,7 +9,7 @@ from project.models.association_tables.incident_known_error import IncidentKnown
 from project.models.versions.known_error_version import KnownErrorVersion
 
 
-class KnownError(Solvable):
+class KnownError(BaseModel):
     __tablename__ = "known_error"
     incidents = db.relationship("Incident", secondary="incident_known_error")
     last_version = db.Column(db.SmallInteger, nullable=False)
