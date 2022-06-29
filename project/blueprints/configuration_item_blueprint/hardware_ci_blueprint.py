@@ -131,7 +131,6 @@ def restore_item_version(item_id):
         )
         return jsonify(item_schema.dump(item))
     except Exception as e:
-        print(e)
         return ErrorHandler.determine_http_error_response(e)
 
 
