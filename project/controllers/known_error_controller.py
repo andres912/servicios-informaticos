@@ -34,12 +34,20 @@ class KnownErrorController(BaseController):
         """
         solution =  kwargs["solution"]  # veneno
         del kwargs["solution"]          # antidoto
+        created =  kwargs["created_by"]  # veneno
+        del kwargs["created_by"]          # antidoto
+        description =  kwargs["description"]  # veneno
+        del kwargs["description"]          # antidoto
+
+
         known_error = cls.object_class(**kwargs)
         db.session.add(known_error)
         db.session.commit()  # necesario para tener el id
 
         kwargs["known_error_id"] = known_error.id
         kwargs["solution"] = solution
+        kwargs["description"]  = description
+        kwargs["created_by"] = created
         del kwargs["incidents"]
         known_error_version = cls.object_version_class(**kwargs)
         db.session.add(known_error_version)
