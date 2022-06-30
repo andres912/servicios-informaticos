@@ -52,5 +52,6 @@ def get_configuration_items():
         for item in conf_items
     ]
     items_info.sort(key=lambda x: x["value"], reverse=True)
+    items_info = items_info[:5]
     item_list = {"items": items_info}
     return jsonify(item_list)

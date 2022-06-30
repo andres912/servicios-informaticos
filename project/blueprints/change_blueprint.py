@@ -87,6 +87,16 @@ def get_solved_incidents():
     return jsonify(changes_schema.dump(changes))
 
 
+@change_blueprint.route(f"{CHANGES_ENDPOINT}/pending", methods=["GET"])
+# @user_required([EDIT_DISTRIBUTOR])
+def get_pending_incidents():
+    """
+    GET endpoint to get all Incidents.
+    """
+    changes = ChangeController.load_pending()
+    return jsonify(changes_schema.dump(changes))
+
+
 @change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>", methods=["PATCH"])
 # @user_required([EDIT_DISTRIBUTOR])
 def patch_change(change_id):

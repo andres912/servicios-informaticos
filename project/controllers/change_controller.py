@@ -5,6 +5,7 @@ from project.models.change import Change, NullChange
 from project.models.association_tables.incident_change import IncidentChange
 from project.models.association_tables.problem_change import ProblemChange
 from project import db
+from sqlalchemy import or_
 
 
 class ChangeController(SolvableController):
@@ -56,3 +57,7 @@ class ChangeController(SolvableController):
             db.session.add(comment)
         db.session.commit()
         return change
+
+    @classmethod
+    def load_pending(cls):
+        return cls.object_class.query.filter(or_(Change.status == 'Pendiente', Change.status =="En proceso")).all()

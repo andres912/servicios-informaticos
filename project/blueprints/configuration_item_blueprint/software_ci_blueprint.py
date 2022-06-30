@@ -192,7 +192,7 @@ def get_item_draft(item_id):
 
 
 @software_ci_blueprint.route(
-    f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/version/<version_number>", methods=["POST"]
+    f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/version/<version_number>", methods=["GET"]
 )
 def check_item_version(item_id, version_number):
     try:
