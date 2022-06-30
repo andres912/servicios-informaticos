@@ -5,19 +5,29 @@ ROLES = {
 	"Admin" : ["total_access"],
 	"HelpDesk" : [
 		"incidents_create", 
-		"incidents_update"
+		"incidents_update",
+		"errors_create",
+		"errors_update"
 	],
 	"ProblemsManager" : [
 		"problems_create",
 		"problems_update", 
-		"changes_create"
+		"changes_create",
+		"errors_create",
+		"errors_update"
 	],
 	"ChangesManager" : [
 		"changes_create",
 		"changes_update",
 		"sla_update",
 		"hardware_update",
-		"software_update"
+		"software_update",
+		"errors_create",
+		"errors_update"
+	],
+	"ErrorsManager": [
+		"errors_create",
+		"errors_update"
 	]
 }
 

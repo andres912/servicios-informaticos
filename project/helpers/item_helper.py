@@ -72,7 +72,7 @@ class ItemHelper:
             client="Restore",
             starting_date=datetime.now(),
             ending_date=datetime.now(),
-            measuremente_unit="Restore",
+            measurement_unit="Restore",
             measurement_value=0,
             is_crucial=False
         )

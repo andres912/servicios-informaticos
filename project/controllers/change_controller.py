@@ -23,7 +23,8 @@ class ChangeController(SolvableController):
         )
 
         for item in items:
-            item.apply_change(change_id)
+            if item.has_draft():
+                item.apply_change(change_id)
 
         db.session.commit()
         return change
