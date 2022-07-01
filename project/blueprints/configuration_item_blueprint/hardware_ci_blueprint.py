@@ -232,3 +232,22 @@ def check_item_version(item_id, version_number):
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
 
+
+@hardware_ci_blueprint.route(
+    f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_item(item_id):
+    """
+    Add comment to an change
+    """
+    try:
+        comment = request.json["comment"]
+        created_by = request.json["created_by"]
+        HardwareConfigurationItemController.add_comment_to_item(
+            item_id=item_id, comment_message=comment, created_by=created_by
+        )
+        return jsonify({"message": "Comment added"})
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+

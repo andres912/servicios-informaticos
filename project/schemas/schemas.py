@@ -331,7 +331,8 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
         fields = ConfigurationItemSchema.Meta.fields + (
             "current_version",
             "draft",
-            "versions"
+            "versions",
+            "comments"
         )
         model = HardwareConfigurationItem
         include_relationships = True
@@ -341,6 +342,7 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
     current_version = fields.Nested("HardwareItemVersionSchema")
     draft = fields.Nested("HardwareItemVersionSchema")
     versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+    comments = fields.Nested("CommentSchema", many=True)
 
 
 class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
@@ -348,7 +350,8 @@ class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
         fields = ConfigurationItemSchema.Meta.fields + (
             "current_version",
             "draft",
-            "versions"
+            "versions",
+            "comments"
         )
         model = SoftwareConfigurationItem
         include_relationships = True
@@ -357,6 +360,7 @@ class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
     current_version = fields.Nested("SoftwareItemVersionSchema")
     draft = fields.Nested("SoftwareItemVersionSchema")
     versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+    comments = fields.Nested("CommentSchema", many=True)
     
 
 class SLAConfigurationItemSchema(ConfigurationItemSchema):
@@ -364,7 +368,8 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
         fields = ConfigurationItemSchema.Meta.fields + (
             "current_version",
             "draft",
-            "versions"
+            "versions",
+            "comments"
         )
         model = SLAConfigurationItem
         include_relationships = True
@@ -373,6 +378,7 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
     current_version = fields.Nested("SLAItemVersionSchema")
     draft = fields.Nested("SLAItemVersionSchema")
     versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+    comments = fields.Nested("CommentSchema", many=True)
 
 
 class ChangeSchema(SolvableSchema):

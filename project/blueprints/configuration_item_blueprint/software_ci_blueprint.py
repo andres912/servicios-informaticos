@@ -208,3 +208,19 @@ def check_item_version(item_id, version_number):
         return jsonify(response) 
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
+
+@software_ci_blueprint.route(
+    f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_item(item_id):
+    """
+    Add comment to an change
+    """
+    comment = request.json["comment"]
+    created_by = request.json["created_by"]
+    SoftwareConfigurationItemController.add_comment_to_item(
+        item_id=item_id, comment_message=comment, created_by=created_by
+    )
+    return jsonify({"message": "Comment added"})

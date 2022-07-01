@@ -1,6 +1,7 @@
 from sqlalchemy import ForeignKey
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
+from project.models.versions.sla_item_version import SLAItemVersion
 
 
 class SLAConfigurationItem(ConfigurationItem):
@@ -13,6 +14,7 @@ class SLAConfigurationItem(ConfigurationItem):
     current_version = db.relationship("SLAItemVersion", foreign_keys=[current_version_id])
     draft = db.relationship("SLAItemVersion", foreign_keys=[draft_id])
     incidents = db.relationship("Incident", secondary="sla_ci_item_incident")
+    comments = db.relationship("SLAItemComment", lazy="dynamic")
 
     def __init__(self, current_version_id: int = None, **kwargs):
         super().__init__("SLA")

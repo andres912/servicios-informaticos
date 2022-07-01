@@ -168,3 +168,12 @@ class ConfigurationItemController(BaseController):
                 item_id=item_id, version_number=version_number
             )
         return item_version
+
+    @classmethod
+    def add_comment_to_item(cls, item_id: int, comment_message: str, created_by: str) -> None:
+        if not item_id or not comment_message or not created_by:
+            return
+        
+        comment = cls.comment_class(text=comment_message, object_id=item_id, created_by=created_by)
+        db.session.add(comment)
+        db.session.commit()

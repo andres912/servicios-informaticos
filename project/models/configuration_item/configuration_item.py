@@ -76,3 +76,8 @@ class ConfigurationItem(BaseModel):
         self.draft_id = None
         db.session.commit()
         draft.force_delete()
+
+    def get_restored_version_number(self):
+        restored_version_id = self.draft.restore_version_id
+        restored_version = list(filter(lambda version: version.id == restored_version_id, self.versions))[0]
+        return restored_version.version_number

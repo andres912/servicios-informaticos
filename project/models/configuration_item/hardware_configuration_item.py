@@ -1,6 +1,7 @@
 from sqlalchemy import ForeignKey
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
+from project.models.versions.hardware_item_version import HardwareItemVersion
 
 
 class HardwareConfigurationItem(ConfigurationItem):
@@ -23,6 +24,7 @@ class HardwareConfigurationItem(ConfigurationItem):
     )
     draft = db.relationship("HardwareItemVersion", foreign_keys=[draft_id])
     incidents = db.relationship("Incident", secondary="hardware_ci_item_incident")
+    comments = db.relationship("HardwareItemComment", lazy="dynamic")
 
     def __init__(self, current_version_id: int = None, **kwargs):
         super().__init__("Hardware")

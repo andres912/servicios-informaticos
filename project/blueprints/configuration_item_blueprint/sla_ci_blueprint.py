@@ -219,3 +219,19 @@ def check_item_version(item_id, version_number):
         return jsonify(item_schema.dump(item)) 
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
+
+@sla_ci_blueprint.route(
+    f"{SLA_CI_ITEMS_ENDPOINT}/<item_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_item(item_id):
+    """
+    Add comment to an change
+    """
+    comment = request.json["comment"]
+    created_by = request.json["created_by"]
+    SLAConfigurationItemController.add_comment_to_item(
+        item_id=item_id, comment_message=comment, created_by=created_by
+    )
+    return jsonify({"message": "Comment added"})
