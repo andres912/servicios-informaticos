@@ -61,6 +61,9 @@ class Incident(Solvable):
                 object="Incident", cause="No configuration items provided"
             )
 
+    def get_items(self):
+        return self.hardware_configuration_items + self.software_configuration_items + self.sla_configuration_items
+
 
 class NullIncident(NullBaseModel, Incident):
     __abstract__ = True

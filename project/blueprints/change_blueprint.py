@@ -139,6 +139,7 @@ def apply_change(change_id):
         ChangeController.apply_change(int(change_id))
         return "Cambio aplicado", 200
     except Exception as e:
+        print(e)
         return ErrorHandler.determine_http_error_response(e)
 
 @change_blueprint.route(f"{CHANGES_ENDPOINT}/<change_id>/discard", methods=["POST"])

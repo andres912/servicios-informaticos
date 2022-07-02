@@ -18,6 +18,9 @@ class Comment(BaseModel):
     __abstract__ = True
 
     text = db.Column(db.String(500))
+    has_link = db.Column(db.Boolean, default=False)
+    link_url = db.Column(db.String(500))
+    link_text = db.Column(db.String(500))
 
     @declared_attr
     def created_by(cls):

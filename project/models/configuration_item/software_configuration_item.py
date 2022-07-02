@@ -1,4 +1,5 @@
 from sqlalchemy import ForeignKey
+from project.models.comment import SoftwareItemComment
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
 from project.models.versions.software_item_version import SoftwareItemVersion
@@ -6,6 +7,7 @@ from project.models.versions.software_item_version import SoftwareItemVersion
 
 class SoftwareConfigurationItem(ConfigurationItem):
     __tablename__ = "ci_software"
+    comment_class = SoftwareItemComment
 
     current_version_id = db.Column(db.Integer, ForeignKey("item_software_version.id"), nullable=True)
     # nullable True xq el ítem se crea antes que la primera versión

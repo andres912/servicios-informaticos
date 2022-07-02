@@ -1,4 +1,5 @@
 from sqlalchemy import ForeignKey
+from project.models.comment import HardwareItemComment
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
 from project.models.versions.hardware_item_version import HardwareItemVersion
@@ -6,6 +7,7 @@ from project.models.versions.hardware_item_version import HardwareItemVersion
 
 class HardwareConfigurationItem(ConfigurationItem):
     __tablename__ = "ci_hardware"
+    comment_class = HardwareItemComment
 
     current_version_id = db.Column(
         db.Integer, ForeignKey("item_hardware_version.id"), nullable=True

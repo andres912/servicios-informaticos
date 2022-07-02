@@ -52,7 +52,7 @@ class SolvableSchema(BaseModelSchema):
             "taken_by",
             "is_blocked",
             "comments",
-            "solving_time"
+            "solving_time",
         )
         include_relationships = True
         load_instance = True
@@ -78,19 +78,13 @@ class IncidentSchema(SolvableSchema):
         load_instance = True
 
     hardware_configuration_items = fields.Nested(
-        "HardwareConfigurationItemSchema",
-        many=True,
-        exclude=["versions"]
+        "HardwareConfigurationItemSchema", many=True, exclude=["versions"]
     )
     software_configuration_items = fields.Nested(
-        "SoftwareConfigurationItemSchema",
-        many=True,
-        exclude=["versions"]
+        "SoftwareConfigurationItemSchema", many=True, exclude=["versions"]
     )
     sla_configuration_items = fields.Nested(
-        "SLAConfigurationItemSchema",
-        many=True,
-        exclude=["versions"]
+        "SLAConfigurationItemSchema", many=True, exclude=["versions"]
     )
 
 
@@ -176,7 +170,7 @@ class UserSchema(BaseModelSchema):
         include_relationships = True
         load_instance = True
 
-    role = fields.Nested(RoleSchema(only=("id", "name")), dump_only=True)
+    role = fields.Nested(RoleSchema(only=("id", "name", "permissions")), dump_only=True)
 
 
 class ItemVersionSchema(BaseModelSchema):
@@ -240,7 +234,7 @@ class SLAItemVersionSchema(ItemVersionSchema):
             "measurement_unit",
             "measurement_value",
             "is_crucial",
-            "draft"
+            "draft",
         )
         model = SLAItemVersion
         include_relationships = True
@@ -255,11 +249,12 @@ class ReducedConfigurationItemSchema(BaseModelSchema):
         fields = ("name",)
         include_relationships = True
         load_instance = True
-    
+
     name = fields.fields.Method("get_name")
 
     def get_name(self, obj: ConfigurationItem) -> str:
         return obj.current_version.name
+
 
 class ConfigurationItemSchema(BaseModelSchema):
     class Meta:
@@ -279,12 +274,13 @@ class ConfigurationItemSchema(BaseModelSchema):
     def get_draft_change_id(self, obj: ConfigurationItem) -> str:
         draft = obj.draft
         return draft.change_id if draft else None
-    
+
     @post_dump(pass_many=True)
     def rearrange_info(self, data, many, **kwargs):
         """
         Needy to use versions as a list object when dumping ConfigurationItem into json.
         """
+
         def remove_current_version_and_draft_from_versions(item_data, attach_to_draft):
             if not "versions" in item_data:
                 return
@@ -292,7 +288,10 @@ class ConfigurationItemSchema(BaseModelSchema):
             for version in versions:
                 if version["is_draft"]:
                     item_data["versions"].remove(version)
-                if version["id"] == item_data["current_version_id"] and not attach_to_draft:
+                if (
+                    version["id"] == item_data["current_version_id"]
+                    and not attach_to_draft
+                ):
                     item_data["versions"].remove(version)
 
         def extract_version_info(item_data, attach_to_draft=False):
@@ -304,23 +303,33 @@ class ConfigurationItemSchema(BaseModelSchema):
                 if key == "id":
                     continue
                 elif key == "version_number" and not attach_to_draft:
-                    item_data["current_version_number"] = item_data["current_version"][key]
+                    item_data["current_version_number"] = item_data["current_version"][
+                        key
+                    ]
                 else:
                     item_data[key] = item_data[field_to_attach][key]
             del item_data[field_to_attach]
             if item_data["is_draft"]:
                 item_data["current_version_number"] = "Borrador"
             if "draft" in item_data and item_data["draft"]:
-                item_data["is_restoring_draft"] = item_data["draft"]["is_restoring_draft"]
+                item_data["is_restoring_draft"] = item_data["draft"][
+                    "is_restoring_draft"
+                ]
 
         # if current_version is excluded, the item is attached to its draft
         if many:
             for item_data in data:
-                attach_to_draft = item_data["draft_id"] != None and "current_version" in self.exclude
+                attach_to_draft = (
+                    item_data["draft_id"] != None and "current_version" in self.exclude
+                )
                 extract_version_info(item_data, attach_to_draft)
-                remove_current_version_and_draft_from_versions(item_data, attach_to_draft)
+                remove_current_version_and_draft_from_versions(
+                    item_data, attach_to_draft
+                )
         else:
-            attach_to_draft = data["draft_id"] != None and "current_version" in self.exclude
+            attach_to_draft = (
+                data["draft_id"] != None and "current_version" in self.exclude
+            )
             extract_version_info(data, attach_to_draft)
             remove_current_version_and_draft_from_versions(data, attach_to_draft)
         return data
@@ -332,7 +341,7 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
             "current_version",
             "draft",
             "versions",
-            "comments"
+            "comments",
         )
         model = HardwareConfigurationItem
         include_relationships = True
@@ -341,7 +350,11 @@ class HardwareConfigurationItemSchema(ConfigurationItemSchema):
     purchase_date = fields.fields.DateTime(format=DATE_FORMAT)
     current_version = fields.Nested("HardwareItemVersionSchema")
     draft = fields.Nested("HardwareItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+    versions = fields.Nested(
+        "ItemVersionSchema",
+        many=True,
+        only=("id", "version_number", "name", "is_draft", "created_at"),
+    )
     comments = fields.Nested("CommentSchema", many=True)
 
 
@@ -351,7 +364,7 @@ class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
             "current_version",
             "draft",
             "versions",
-            "comments"
+            "comments",
         )
         model = SoftwareConfigurationItem
         include_relationships = True
@@ -359,9 +372,13 @@ class SoftwareConfigurationItemSchema(ConfigurationItemSchema):
 
     current_version = fields.Nested("SoftwareItemVersionSchema")
     draft = fields.Nested("SoftwareItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+    versions = fields.Nested(
+        "ItemVersionSchema",
+        many=True,
+        only=("id", "version_number", "name", "is_draft", "created_at"),
+    )
     comments = fields.Nested("CommentSchema", many=True)
-    
+
 
 class SLAConfigurationItemSchema(ConfigurationItemSchema):
     class Meta:
@@ -369,15 +386,19 @@ class SLAConfigurationItemSchema(ConfigurationItemSchema):
             "current_version",
             "draft",
             "versions",
-            "comments"
+            "comments",
         )
         model = SLAConfigurationItem
         include_relationships = True
         load_instance = True
-    
+
     current_version = fields.Nested("SLAItemVersionSchema")
     draft = fields.Nested("SLAItemVersionSchema")
-    versions = fields.Nested("ItemVersionSchema", many=True, only=("id", "version_number", "name", "is_draft", "created_at"))
+    versions = fields.Nested(
+        "ItemVersionSchema",
+        many=True,
+        only=("id", "version_number", "name", "is_draft", "created_at"),
+    )
     comments = fields.Nested("CommentSchema", many=True)
 
 
@@ -398,21 +419,15 @@ class ChangeSchema(SolvableSchema):
         model = Change
         include_relationships = True
         load_instance = True
-    
+
     hardware_configuration_items = fields.Nested(
-        "HardwareConfigurationItemSchema",
-        many=True,
-        exclude=["versions"]
+        "HardwareConfigurationItemSchema", many=True, exclude=["versions"]
     )
     software_configuration_items = fields.Nested(
-        "SoftwareConfigurationItemSchema",
-        many=True,
-        exclude=["versions"]
+        "SoftwareConfigurationItemSchema", many=True, exclude=["versions"]
     )
     sla_configuration_items = fields.Nested(
-        "SLAConfigurationItemSchema",
-        many=True,
-        exclude=["versions"]
+        "SLAConfigurationItemSchema", many=True, exclude=["versions"]
     )
 
     incidents = fields.Nested(
@@ -449,6 +464,7 @@ class KnownErrorSchema(BaseModelSchema):
         """
         Needy to use versions as a list object when dumping KnownError into json.
         """
+
         def remove_current_version_from_versions(item_data):
             if not "versions" in item_data:
                 return
@@ -466,12 +482,14 @@ class KnownErrorSchema(BaseModelSchema):
                 if key == "id":
                     continue
                 elif key == "version_number":
-                    item_data["current_version_number"] = item_data["current_version"][key]
+                    item_data["current_version_number"] = item_data["current_version"][
+                        key
+                    ]
                 else:
                     item_data[key] = item_data[field_to_attach][key]
             del item_data[field_to_attach]
 
-        #todo ver la importancia de esta parte
+        # todo ver la importancia de esta parte
         # if current_version is excluded, the item is attached to its draft
         if many:
             for item_data in data:
@@ -482,13 +500,14 @@ class KnownErrorSchema(BaseModelSchema):
             remove_current_version_from_versions(data)
         return data
 
+
 class KnownErrorVersionSchema(BaseModelSchema):
     class Meta:
         fields = BaseModelSchema.Meta.fields + (
             "description",
             "solution",
             "version_number",
-            "created_by"
+            "created_by",
         )
         model = KnownErrorVersion
         include_relationships = False
@@ -497,6 +516,13 @@ class KnownErrorVersionSchema(BaseModelSchema):
 
 class CommentSchema(BaseModelSchema):
     class Meta:
-        fields = ("created_at", "created_by", "text")
+        fields = (
+            "created_at",
+            "created_by",
+            "text",
+            "has_link",
+            "link_url",
+            "link_text",
+        )
 
     created_at = fields.fields.DateTime(format=DATETIME_FORMAT)

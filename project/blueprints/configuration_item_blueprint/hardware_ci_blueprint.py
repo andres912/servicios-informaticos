@@ -188,6 +188,7 @@ def create_item_draft(item_id):
             create_new_draft(item, change_id, request.json)
             return jsonify(draft_schema.dump(item))
     except Exception as e:
+        print(e)
         return ErrorHandler.determine_http_error_response(e)
 
 

@@ -2,6 +2,7 @@ from project.controllers.configuration_item_controller.configuration_item_contro
     ConfigurationItemController,
 )
 from project.controllers.solvable_controller import SolvableController
+from project.helpers.link_creator import LinkCreator
 from project.models.association_tables.configuration_item_incident import (
     HardwareConfigurationItemIncident,
 )
@@ -88,7 +89,7 @@ class ChangeController(SolvableController):
     def create_item_comment(cls, item, change_id, version_number):
         item_type = item.item_type
         is_restoring_draft = item.draft.is_restoring_draft
-        restored_version = item.get_restored_version_number()
+        restored_version = item.get_restored_version_number() if is_restoring_draft else None
         if item_type == "Hardware":
             if is_restoring_draft:
                 comment = HardwareItemComment(
@@ -122,5 +123,6 @@ class ChangeController(SolvableController):
                     text=f"Se ha creado la versión {version_number} del ítem a través del cambio {change_id}",
                     object_id=item.id,
                 )
+        LinkCreator.create_change_details_link(comment, change_id)
         db.session.add(comment)
         db.session.commit()
