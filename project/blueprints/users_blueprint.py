@@ -40,7 +40,8 @@ def get_users():
     return "OK"
 
 
-@users_blueprint.route("/profile", methods=["GET"])
-@user_required([])
-def profile(current_user):
-    return jsonify(user_schema.dump(current_user))
+@users_blueprint.route(f"{USERS_ENDPOINT}/<user_id>/profile", methods=["GET"])
+def profile(user_id):
+    user = UserController.load_by_id(user_id)
+    print(user_schema.dump(user))
+    return jsonify(user_schema.dump(user))

@@ -70,9 +70,9 @@ def create_error_version(error_id):
     Creates a new Version for the Known Error
     """
     try:
-        #correct_request = RequestHelper.correct_dates(request.json)
+        correct_request = RequestHelper.correct_dates(request.json)
         new_error = KnownErrorController.create_new_known_error_version(
-            error_id, **request.json
+            error_id, **correct_request
         )
         return jsonify(error_schema.dump(new_error))
     except Exception as e:

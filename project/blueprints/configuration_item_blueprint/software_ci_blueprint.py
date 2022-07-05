@@ -108,8 +108,9 @@ def restore_item_version(item_id):
     Creates a new Software Configuration Item
     """
     try:
-        version = request.json.get("version")
-        item = SoftwareConfigurationItemController.restore_item_version(item_id, version)
+        version_number = request.json.get("version")
+        change_id = request.json.get("change_id")
+        item = SoftwareConfigurationItemController.restore_item_version(item_id, version_number, change_id)
         return jsonify(item_schema.dump(item))
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
@@ -188,3 +189,38 @@ def get_item_draft(item_id):
 
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
+
+@software_ci_blueprint.route(
+    f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/version/<version_number>", methods=["GET"]
+)
+def check_item_version(item_id, version_number):
+    try:
+        if version_number == "Borrador":
+            item = SoftwareConfigurationItemController.load_by_id(item_id)
+            return jsonify(draft_schema.dump(item))
+
+        item_version = SoftwareConfigurationItemController.load_item_version(item_id, version_number)
+        item = SoftwareConfigurationItemController.load_by_id(item_id)
+        item.current_version_id = item_version.id # no consecuences if it is not being saved in the db
+        item.current_version = item_version # no consecuences if it is not being saved in the db
+        response = item_schema.dump(item)
+        return jsonify(response) 
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+@software_ci_blueprint.route(
+    f"{SOFTWARE_CI_ITEMS_ENDPOINT}/<item_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_item(item_id):
+    """
+    Add comment to an change
+    """
+    comment = request.json["comment"]
+    created_by = request.json["created_by"]
+    SoftwareConfigurationItemController.add_comment_to_item(
+        item_id=item_id, comment_message=comment, created_by=created_by
+    )
+    return jsonify({"message": "Comment added"})

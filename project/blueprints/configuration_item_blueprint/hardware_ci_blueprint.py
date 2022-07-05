@@ -100,9 +100,6 @@ def update_item(item_id):
     f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>", methods=["DELETE"]
 )
 def delete_item(item_id):
-    """
-    PUT endpoint to update a Hardware Configuration Item
-    """
     try:
         item = HardwareConfigurationItemController.delete(id=item_id)
     except ObjectNotFoundException as e:
@@ -128,8 +125,9 @@ def restore_item_version(item_id):
     """
     try:
         version = request.json.get("version")
+        change_id = request.json.get("change_id")
         item = HardwareConfigurationItemController.restore_item_version(
-            item_id, version
+            item_id, version, change_id
         )
         return jsonify(item_schema.dump(item))
     except Exception as e:
@@ -169,7 +167,9 @@ def update_item_draft(item, change_id, request_json):
 
 def create_new_draft(item, change_id, request_json):
     correct_request = RequestHelper.correct_dates(request_json)
-    draft = HardwareConfigurationItemController.create_draft(item.id, change_id, **correct_request)
+    draft = HardwareConfigurationItemController.create_draft(
+        item.id, change_id, **correct_request
+    )
     return draft
 
 
@@ -188,6 +188,7 @@ def create_item_draft(item_id):
             create_new_draft(item, change_id, request.json)
             return jsonify(draft_schema.dump(item))
     except Exception as e:
+        print(e)
         return ErrorHandler.determine_http_error_response(e)
 
 
@@ -215,3 +216,39 @@ def get_item_draft(item_id):
 
     except Exception as e:
         return ErrorHandler.determine_http_error_response(e)
+
+
+@hardware_ci_blueprint.route(
+    f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/version/<version_number>", methods=["GET"]
+)
+def check_item_version(item_id, version_number):
+    try:
+        item_version = HardwareConfigurationItemController.load_item_version(
+            item_id, version_number
+        )
+        item = HardwareConfigurationItemController.load_by_id(item_id)
+        item.current_version = item_version # no problem, not being saved in the DB
+        item.current_version_number = version_number
+        return jsonify(item_schema.dump(item))
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+
+
+@hardware_ci_blueprint.route(
+    f"{HARDWARE_CI_ITEMS_ENDPOINT}/<item_id>/comments", methods=["POST"]
+)
+# @user_required([EDIT_DISTRIBUTOR])
+def add_comment_to_item(item_id):
+    """
+    Add comment to an change
+    """
+    try:
+        comment = request.json["comment"]
+        created_by = request.json["created_by"]
+        HardwareConfigurationItemController.add_comment_to_item(
+            item_id=item_id, comment_message=comment, created_by=created_by
+        )
+        return jsonify({"message": "Comment added"})
+    except Exception as e:
+        return ErrorHandler.determine_http_error_response(e)
+

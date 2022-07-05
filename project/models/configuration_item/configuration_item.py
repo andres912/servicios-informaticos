@@ -6,7 +6,15 @@ from project.models.versions.sla_item_version import SLAItemVersion
 from project.models.versions.item_version import ItemVersion
 from project.models.base_model import BaseModel
 from project import db
-
+from project.models.association_tables.configuration_item_incident import (
+    HardwareConfigurationItemIncident,
+)
+from project.models.association_tables.configuration_item_incident import (
+    SoftwareConfigurationItemIncident,
+)
+from project.models.association_tables.configuration_item_incident import (
+    SLAConfigurationItemIncident,
+)
 
 class ConfigurationItem(BaseModel):
     __abstract__ = True
@@ -42,6 +50,10 @@ class ConfigurationItem(BaseModel):
         if change_id != draft.change_id:
             raise ChangeApplicationError(item_id=self.id, change_id=change_id)
 
+        if draft.is_restoring_draft:
+            self.restore_version(draft)
+            return
+
         self.current_version_id = draft.id
         self.draft.is_draft = False
         self.draft_id = None
@@ -58,13 +70,14 @@ class ConfigurationItem(BaseModel):
         db.session.commit()
         draft.force_delete()
 
-    def restore_version(self, version_id):
+    def restore_version(self, draft):
+        version_id = draft.restore_version_id
         self.current_version_id = version_id
+        self.draft_id = None
+        db.session.commit()
+        draft.force_delete()
 
-    def get_items(self):
-        return (
-            self.hardware_configuration_items
-            + self.software_configuration_items
-            + self.sla_configuration_items
-        )
-
+    def get_restored_version_number(self):
+        restored_version_id = self.draft.restore_version_id
+        restored_version = list(filter(lambda version: version.id == restored_version_id, self.versions))[0]
+        return restored_version.version_number

@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import ForeignKey
 from project import db
 from project.db_types.list_type import MutableList
@@ -16,9 +17,8 @@ class Solvable(BaseModel):
     description = db.Column(db.String(500))
     priority = db.Column(db.String(20))
     status = db.Column(db.String(20))
-    created_on = db.Column(db.DateTime, default=db.func.now())
-    updated_on = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
     is_blocked = db.Column(db.Boolean, default=False)
+    solved_at = db.Column(db.DateTime(timezone=True), default=None)
 
     @declared_attr
     def created_by(cls):
@@ -33,7 +33,8 @@ class Solvable(BaseModel):
         self,
         description: str,
         priority: str = PRIORITY_MEDIUM,
-        created_by: str = ""
+        created_by: str = "",
+        solved_at: datetime = None,
     ):
         self.description = description
         self.priority = priority
@@ -41,7 +42,7 @@ class Solvable(BaseModel):
         self.status = STATUS_PENDING
         self.taken_by = None
         self.is_blocked = False
-
+        self.solved_at = solved_at
 
     def _update(self,
                 title: str = None,
@@ -49,7 +50,8 @@ class Solvable(BaseModel):
                 priority: str = None,
                 status: str = None,
                 taken_by: str = None,
-                is_blocked: bool = None) -> None:
+                is_blocked: bool = None,
+                solved_at: datetime = None ) -> None:
 
         if title:
             self.title = title
@@ -59,9 +61,10 @@ class Solvable(BaseModel):
             self.priority = priority
         if status:
             self.status = status
+            if (status == STATUS_SOLVED):
+                self.solved_at = datetime.now()
         if taken_by:
             self.taken_by = taken_by
-
         if is_blocked != None:
             self.is_blocked = is_blocked
 
