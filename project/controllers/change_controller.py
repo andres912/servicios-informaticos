@@ -70,12 +70,14 @@ class ChangeController(SolvableController):
                 object_id=incident.id,
             )
             db.session.add(comment)
+            LinkCreator.create_change_details_link(comment, change.id)
         for problem in change.problems:
             comment = ProblemComment(
                 text=f"Se ha creado el cambio con id {change.id}, asociado a este problema",
                 object_id=problem.id,
             )
             db.session.add(comment)
+            LinkCreator.create_change_details_link(comment, change.id)
         db.session.commit()
         return change
 

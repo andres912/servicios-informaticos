@@ -28,3 +28,14 @@ class ProblemController(SolvableController):
             
         db.session.commit()
         return problem
+
+    @classmethod
+    def get_item_problems(cls, item_incident_ids: list) -> list:
+        if not item_incident_ids: return []
+        item_incident_ids = str(item_incident_ids).replace("[", "(").replace("]", ")")
+        query = f"""
+                SELECT DISTINCT problem_id FROM
+                incident_problem where incident_id in {item_incident_ids}
+        """
+        problem_ids = db.engine.execute(query, incident_ids=item_incident_ids).fetchall()
+        return [cls.load_by_id(problem_id[0]) for problem_id in problem_ids]

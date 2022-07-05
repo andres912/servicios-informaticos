@@ -17,6 +17,7 @@ class SoftwareConfigurationItem(ConfigurationItem):
     draft = db.relationship("SoftwareItemVersion", foreign_keys=[draft_id])
     incidents = db.relationship("Incident", secondary="software_ci_item_incident")
     comments = db.relationship("SoftwareItemComment", lazy="dynamic")
+    changes = db.relationship("Change", secondary="software_ci_item_change")
 
     def __init__(self, current_version_id: int = None, **kwargs):
         super().__init__("Software")

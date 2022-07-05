@@ -1,4 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
+from project.controllers.configuration_item_controller.configuration_item_controller import (
+    ConfigurationItemController,
+)
 from project.controllers.configuration_item_controller.hardware_ci_controller import (
     HardwareConfigurationItemController,
 )
@@ -43,11 +46,16 @@ def get_configuration_items():
     hardware_conf_items = HardwareConfigurationItemController.load_all()
     software_conf_items = SoftwareConfigurationItemController.load_all()
     sla_conf_items = SLAConfigurationItemController.load_all()
+    solvable_category = request.args.get("category")
     conf_items = hardware_conf_items + software_conf_items + sla_conf_items
     items_info = [
         {
             "name": item.current_version.name + " (" + item.item_type + ")",
-            "value": len(item.incidents),
+            "value": len(
+                ConfigurationItemController.get_associated_solvables(
+                    item, solvable_category
+                )
+            ),
         }
         for item in conf_items
     ]

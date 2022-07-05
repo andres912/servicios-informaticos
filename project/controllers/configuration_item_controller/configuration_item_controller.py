@@ -3,6 +3,7 @@ from typing import List
 
 from sqlalchemy import text
 from project.controllers.base_controller import BaseController
+from project.controllers.problem_controller import ProblemController
 from project.helpers.item_helper import ItemHelper
 from project.models.configuration_item.configuration_item import ConfigurationItem
 from project import db
@@ -11,6 +12,7 @@ from project.models.exceptions import (
     ItemVersionNotFoundException,
     ObjectNotFoundException,
 )
+from project.models.problem import Problem
 from project.models.versions.item_version import ItemVersion
 
 
@@ -177,3 +179,15 @@ class ConfigurationItemController(BaseController):
         comment = cls.comment_class(text=comment_message, object_id=item_id, created_by=created_by)
         db.session.add(comment)
         db.session.commit()
+
+    @classmethod
+    def get_associated_solvables(cls, item, solvable_category: str):
+        if solvable_category == "incidents":
+            return item.incidents
+        if solvable_category == "problems":
+            incidents = item.incidents
+            incidents_ids = [incident.id for incident in incidents]
+            return ProblemController.get_item_problems(incidents_ids)
+        if solvable_category == "changes":
+            return item.changes
+        raise ValueError("Invalid solvable category")

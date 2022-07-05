@@ -17,6 +17,7 @@ class SLAConfigurationItem(ConfigurationItem):
     draft = db.relationship("SLAItemVersion", foreign_keys=[draft_id])
     incidents = db.relationship("Incident", secondary="sla_ci_item_incident")
     comments = db.relationship("SLAItemComment", lazy="dynamic")
+    changes = db.relationship("Change", secondary="sla_ci_item_change")
 
     def __init__(self, current_version_id: int = None, **kwargs):
         super().__init__("SLA")
