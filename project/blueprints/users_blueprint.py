@@ -9,6 +9,7 @@ from project.blueprints.authorization_blueprint import user_required
 USERS_ENDPOINT = "/users"
 
 user_schema = UserSchema()
+users_schema = UserSchema(many=True)
 users_blueprint = Blueprint("users_blueprint", __name__)
 
 
@@ -35,9 +36,10 @@ def register():
 
 
 @users_blueprint.route(USERS_ENDPOINT, methods=["GET"])
-# @user_required([EDIT_USER])
 def get_users():
-    return "OK"
+    user = UserController.load_all()
+    print(user_schema.dump(user))
+    return jsonify(users_schema.dump(user))
 
 
 @users_blueprint.route(f"{USERS_ENDPOINT}/<user_id>/profile", methods=["GET"])

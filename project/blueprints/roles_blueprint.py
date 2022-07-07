@@ -7,6 +7,7 @@ ROLES_ENDPOINT = "/roles"
 
 roles_blueprint = Blueprint("roles_blueprint", __name__)
 role_schema = RoleSchema()
+roles_schema = RoleSchema(many=True)
 
 @roles_blueprint.route(ROLES_ENDPOINT, methods=["POST"])
 #@user_required([EDIT_ROLE])
@@ -22,3 +23,14 @@ def post_role():
     except ValidationError as err:
         return jsonify(err.messages), 422
     return role_schema.dump(new_role)
+
+@roles_blueprint.route(ROLES_ENDPOINT, methods=["GET"])
+def get_role():
+    """
+    GET endpoint for Role.
+    """
+    try:
+        roles = RoleController.load_all()
+    except ValidationError as err:
+        return jsonify(err.messages), 422
+    return jsonify(roles_schema.dump(roles))
