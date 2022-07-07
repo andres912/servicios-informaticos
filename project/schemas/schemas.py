@@ -452,12 +452,13 @@ class KnownErrorSchema(BaseModelSchema):
         include_relationships = True
         load_instance = True
 
-    incidents = fields.Nested(
-        "IncidentSchema", many=True, only={"id", "description", "status", "priority"}
-    )
+    incidents = fields.fields.Method("get_incidents")
 
     current_version = fields.Nested("KnownErrorVersionSchema")
     versions = fields.Nested("KnownErrorVersionSchema", many=True)
+
+    def get_incidents(self, obj: KnownError):
+        return obj.get_incidents()
 
     @post_dump(pass_many=True)
     def rearrange_info(self, data, many, **kwargs):
