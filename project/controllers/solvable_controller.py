@@ -43,8 +43,8 @@ class SolvableController(BaseController):
         )
 
     @classmethod
-    def add_comment_to_solvable(cls, solvable_id: int, comment_message: str, created_by: str) -> None:
-        if not solvable_id or not comment_message or not created_by:
+    def add_comment_to_solvable(cls, solvable_id: int, comment_message: str, created_by: str = None) -> None:
+        if not solvable_id or not comment_message:
             return
         
         comment = cls.comment_class(text=comment_message, object_id=solvable_id, created_by=created_by)

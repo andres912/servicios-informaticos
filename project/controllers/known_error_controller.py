@@ -133,10 +133,16 @@ class KnownErrorController(BaseController):
             )
 
         current_version_number = known_error.current_version.version_number
-        db.engine.execute(IncidentKnownError.insert(),
+        db.engine.execute(
+            IncidentKnownError.insert(),
             incident_id=incident.id,
             known_error_id=known_error.id,
             version_used=current_version_number,
+        )
+        solution_used = known_error.current_version.solution
+        IncidentController.add_comment_to_solvable(
+            incident.id,
+            f'Se utilizó la solución: "{solution_used}" para intentar resolver el incidente',
         )
         db.session.commit()
         return known_error
