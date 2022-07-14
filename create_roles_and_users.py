@@ -24,9 +24,8 @@ ROLES = {
 	"ChangesManager" : [
 		"changes_create",
 		"changes_update",
-		"sla_update",
-		"hardware_update",
-		"software_update",
+		"items_update",
+		"items_create",
 		"errors_create",
 		"errors_update"
 	],
