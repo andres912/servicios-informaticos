@@ -110,7 +110,7 @@ def login():
   
     return jsonify(
         {
-            "token": token,
+            "token": token.decode(),
             "permissions": user.permissions,
             "user": {
             "id": user.id,

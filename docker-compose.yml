@@ -3,8 +3,35 @@ version: '3.4'
 services:
   db:
     image: postgres:11
-    network_mode: "host"
     security_opt:
       - seccomp:unconfined
     env_file:
-      - '.env.dev'
+      - '.postgres'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - itil_network
+    ports:
+      - "5435:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - '.env'
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    networks:
+      - itil_network
+
+volumes:
+  db-data:
+
+networks:
+  itil_network:
+    driver: bridge
