@@ -32,13 +32,12 @@ class KnownErrorController(BaseController):
         """
         Creates and saves KnownError object.
         """
-        solution =  kwargs["solution"]  # veneno
-        del kwargs["solution"]          # antidoto
-        created =  kwargs["created_by"]  # veneno
-        del kwargs["created_by"]          # antidoto
-        description =  kwargs["description"]  # veneno
-        del kwargs["description"]          # antidoto
-
+        solution = kwargs["solution"]  # veneno
+        del kwargs["solution"]  # antidoto
+        created = kwargs["created_by"]  # veneno
+        del kwargs["created_by"]  # antidoto
+        description = kwargs["description"]  # veneno
+        del kwargs["description"]  # antidoto
 
         known_error = cls.object_class(**kwargs)
         db.session.add(known_error)
@@ -46,7 +45,7 @@ class KnownErrorController(BaseController):
 
         kwargs["known_error_id"] = known_error.id
         kwargs["solution"] = solution
-        kwargs["description"]  = description
+        kwargs["description"] = description
         kwargs["created_by"] = created
         del kwargs["incidents"]
         known_error_version = cls.object_version_class(**kwargs)
@@ -55,6 +54,10 @@ class KnownErrorController(BaseController):
 
         known_error.set_current_version(known_error_version.id)
         db.session.commit()
+
+        for incident in known_error.incidents:
+            cls.add_incident_to_error(known_error.id, incident.description)
+
         return known_error
 
     @classmethod
@@ -76,12 +79,10 @@ class KnownErrorController(BaseController):
     def restore_known_error_version(cls, known_error_id: int, version_number: int):
         known_error = cls.load_by_id(known_error_id)
         new_version = cls.object_version_class.query.filter_by(
-            known_error_id=known_error_id, version_number = version_number
+            known_error_id=known_error_id, version_number=version_number
         ).first()
         if not new_version:
-            raise KnownErrorVersionNotFoundException(
-                known_error_id, version_number
-            )
+            raise KnownErrorVersionNotFoundException(known_error_id, version_number)
         known_error.current_version_id = new_version.id
         db.session.commit()
         return known_error
@@ -91,9 +92,7 @@ class KnownErrorController(BaseController):
         """
         Returns all Model objects, filtered by not deleted.
         """
-        return cls.object_class.query.filter_by(
-            is_deleted=False
-        ).all()
+        return cls.object_class.query.filter_by(is_deleted=False).all()
 
     @classmethod
     def create_new_known_error_version(cls, known_error_id: int, **kwargs):
@@ -119,3 +118,31 @@ class KnownErrorController(BaseController):
             raise MissingFieldsException(missing_fields=["username"])
         return KnownError.query.filter_by(created_by=username).all()
 
+    @classmethod
+    def add_incident_to_error(cls, known_error_id: int, incident_description: str):
+        incident = IncidentController.load_by_description(incident_description)
+        if not incident:
+            raise ObjectNotFoundException(
+                object_name="Incident", object_id=incident_description
+            )
+
+        known_error = cls.load_by_id(known_error_id)
+        if not known_error:
+            raise ObjectNotFoundException(
+                object_name="Known Error", object_id=known_error_id
+            )
+
+        current_version_number = known_error.current_version.version_number
+        db.engine.execute(
+            IncidentKnownError.insert(),
+            incident_id=incident.id,
+            known_error_id=known_error.id,
+            version_used=current_version_number,
+        )
+        solution_used = known_error.current_version.solution
+        IncidentController.add_comment_to_solvable(
+            incident.id,
+            f'Se utilizó la solución: "{solution_used}" para intentar resolver el incidente',
+        )
+        db.session.commit()
+        return known_error

@@ -106,3 +106,14 @@ def create_known_error():
     error = KnownErrorController.create(**correct_request)
     return error_schema.dump(error)
 
+
+@known_error_blueprint.route(f"{KNOWN_ERRORS_ENDPOINT}/incident", methods=["POST"])
+# @user_required([EDIT_DISTRIBUTOR])
+def add_incident_to_error():
+    """
+    POST endpoint to create a new Error.
+    """
+    error_id = request.json.get("error_id")
+    incident_name = request.json.get("incident_name")
+    known_error = KnownErrorController.add_incident_to_error(error_id, incident_name)
+    return jsonify(error_schema.dump(known_error))

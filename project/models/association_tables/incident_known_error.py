@@ -1,4 +1,4 @@
-from sqlalchemy import Table
+from sqlalchemy import SmallInteger, Table
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
@@ -10,4 +10,5 @@ IncidentKnownError = Table(
     Column("id", Integer, primary_key=True),
     Column("incident_id", Integer, ForeignKey("incident.id")),
     Column("known_error_id", Integer, ForeignKey("known_error.id")),
+    Column("version_used", SmallInteger, nullable=True, default=None),
 )

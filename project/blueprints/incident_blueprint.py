@@ -13,7 +13,6 @@ alternative_incident_schema = AlternativeIncidentSchema()
 alternative_incidents_schema = AlternativeIncidentSchema(many=True)
 reduced_incidents_schema = IncidentSchema(many=True, only=["description"])
 
-
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
 def get_incidents():
@@ -22,7 +21,6 @@ def get_incidents():
     """
     incidents = IncidentController.load_all()
     return jsonify(alternative_incidents_schema.dump(incidents))
-
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/<incident_id>", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
@@ -35,7 +33,6 @@ def get_incident(incident_id):
         return alternative_incident_schema.dump(incident), 200
     except Exception as e:
         return jsonify({"error": e.message}), 404
-
 
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/assigned", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
@@ -56,7 +53,6 @@ def get_unassigned_incidents():
     incidents = IncidentController.load_unassigned()
     return jsonify(incidents_schema.dump(incidents))
 
-
 @incident_blueprint.route(f"{INCIDENTS_ENDPOINT}/solved", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])
 def get_solved_incidents():
@@ -65,7 +61,6 @@ def get_solved_incidents():
     """
     incidents = IncidentController.load_solved()
     return jsonify(incidents_schema.dump(incidents))
-
 
 @incident_blueprint.route(f"/users/<user_id>{INCIDENTS_ENDPOINT}", methods=["GET"])
 # @user_required([EDIT_DISTRIBUTOR])

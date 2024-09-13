@@ -1,3 +1,4 @@
+from sqlalchemy.orm import Session
 from project import db
 from project.models.base_model import BaseModel, NullBaseModel
 from project.models.exceptions import ObjectCreationException
@@ -28,12 +29,7 @@ class KnownError(BaseModel):
         "KnownErrorVersion", foreign_keys=[current_version_id]
     )
 
-    def __init__(
-        self,
-        current_version_id: int = None,
-        incidents: list = [],
-        **kwargs
-    ):
+    def __init__(self, current_version_id: int = None, incidents: list = [], **kwargs):
         self.incidents = incidents
         self.current_version_id = current_version_id
         self.last_version = 1
@@ -45,7 +41,7 @@ class KnownError(BaseModel):
         description: str = None,
         solution: str = None,
         taken_by: str = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         if title:
             self.title = title
@@ -57,8 +53,6 @@ class KnownError(BaseModel):
             self.taken_by = taken_by
         return self.current_version.update(**kwargs)
 
-
-
     def verify_incidents(self, incidents: list) -> None:
         if not incidents:
             raise ObjectCreationException(
@@ -67,6 +61,21 @@ class KnownError(BaseModel):
 
     def set_current_version(self, version_id: int):
         self.current_version_id = version_id
+
+    def get_incidents(self):
+        current_version_number = self.current_version.version_number
+        SQL_QUERY = f"""
+            SELECT incident_id, description FROM incident_known_error
+            JOIN incident ON incident_known_error.incident_id = incident.id
+            WHERE known_error_id = {self.id}
+            AND version_used = {current_version_number}
+        """
+        incidents_info = db.engine.execute(SQL_QUERY).fetchall()
+        return [
+            {"id": incident[0], "description": incident[1]}
+            for incident in incidents_info
+        ]
+
 
 class NullKnownError(NullBaseModel, KnownError):
     __abstract__ = True
